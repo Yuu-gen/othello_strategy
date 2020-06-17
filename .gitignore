@@ -1,2 +1,7 @@
 othello-build-tools/target
+othello-core/.checkstyle
+othello-core/.fbExcludeFilterFile
+othello-core/.pmd
+othello-core/.pmdruleset.xml
+othello-core/target
 target
