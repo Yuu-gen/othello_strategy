@@ -10,7 +10,9 @@
 	<description>The parent for all Othello game projects.</description>
 	<packaging>pom</packaging>
 
-	<modules/>
+	<modules>
+		<module>othello-build-tools</module>
+	</modules>
 
 	<licenses>
 		<license>
@@ -44,6 +46,10 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>11</maven.compiler.source>
 		<maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
+		<checkstyle.version>8.33</checkstyle.version>
+		<pmd.version>6.24.0</pmd.version>
+		<spotbugs.version>4.0.4</spotbugs.version>
+		<build-tools.version>1.0.0-SNAPSHOT</build-tools.version>
 		<gaming.version>1.0.0-SNAPSHOT</gaming.version>
 	</properties>
 
@@ -159,6 +165,125 @@
 							<include>**/*.java</include>
 						</includes>
 					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-checkstyle-plugin</artifactId>
+					<version>3.1.1</version>
+					<dependencies>
+						<dependency>
+							<groupId>de.fhdw.gaming.othello</groupId>
+							<artifactId>othello-build-tools</artifactId>
+							<version>${build-tools.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>com.puppycrawl.tools</groupId>
+							<artifactId>checkstyle</artifactId>
+							<version>${checkstyle.version}</version>
+						</dependency>
+					</dependencies>
+					<configuration>
+						<consoleOutput>false</consoleOutput>
+						<failsOnError>false</failsOnError>
+						<failOnViolation>false</failOnViolation>
+						<logViolationsToConsole>false</logViolationsToConsole>
+						<configLocation>analyser-config/checkstyle.ruleset.xml</configLocation>
+						<includeTestSourceDirectory>true</includeTestSourceDirectory>
+					</configuration>
+					<executions>
+						<execution>
+							<id>checkstyle</id>
+							<phase>validate</phase>
+							<goals>
+								<goal>check</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-pmd-plugin</artifactId>
+					<version>3.13.0</version>
+					<dependencies>
+						<dependency>
+							<groupId>de.fhdw.gaming.othello</groupId>
+							<artifactId>othello-build-tools</artifactId>
+							<version>${build-tools.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>net.sourceforge.pmd</groupId>
+							<artifactId>pmd-core</artifactId>
+							<version>${pmd.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>net.sourceforge.pmd</groupId>
+							<artifactId>pmd-java</artifactId>
+							<version>${pmd.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>net.sourceforge.pmd</groupId>
+							<artifactId>pmd-javascript</artifactId>
+							<version>${pmd.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>net.sourceforge.pmd</groupId>
+							<artifactId>pmd-jsp</artifactId>
+							<version>${pmd.version}</version>
+						</dependency>
+					</dependencies>
+					<configuration>
+						<includeTests>true</includeTests>
+						<rulesets>
+							<ruleset>analyser-config/pmd.ruleset.xml</ruleset>
+						</rulesets>
+						<failOnViolation>false</failOnViolation>
+						<linkXRef>false</linkXRef>
+					</configuration>
+					<executions>
+						<execution>
+							<id>pmd</id>
+							<phase>validate</phase>
+							<goals>
+								<goal>check</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>com.github.spotbugs</groupId>
+					<artifactId>spotbugs-maven-plugin</artifactId>
+					<version>4.0.0</version>
+					<dependencies>
+						<dependency>
+							<groupId>de.fhdw.gaming.othello</groupId>
+							<artifactId>othello-build-tools</artifactId>
+							<version>${build-tools.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>com.github.spotbugs</groupId>
+							<artifactId>spotbugs</artifactId>
+							<version>${spotbugs.version}</version>
+						</dependency>
+					</dependencies>
+					<configuration>
+						<effort>Max</effort>
+						<threshold>Low</threshold>
+						<maxRank>14</maxRank>
+						<xmlOutput>true</xmlOutput>
+						<includeTests>true</includeTests>
+						<failOnError>false</failOnError>
+						<spotbugsXmlOutputDirectory>${project.build.directory}/spotbugs</spotbugsXmlOutputDirectory>
+						<excludeFilterFile>analyser-config/spotbugs.filter.xml</excludeFilterFile>
+					</configuration>
+					<executions>
+						<execution>
+							<id>spotbugs</id>
+							<phase>compile</phase>
+							<goals>
+								<goal>check</goal>
+							</goals>
+						</execution>
+					</executions>
 				</plugin>
 			</plugins>
 		</pluginManagement>
