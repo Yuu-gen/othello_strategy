@@ -13,6 +13,7 @@
 	<modules>
 		<module>othello-build-tools</module>
 		<module>othello-core</module>
+		<module>othello-strategy-examples</module>
 	</modules>
 
 	<licenses>

@@ -4,4 +4,9 @@ othello-core/.fbExcludeFilterFile
 othello-core/.pmd
 othello-core/.pmdruleset.xml
 othello-core/target
+othello-strategy-examples/.checkstyle
+othello-strategy-examples/.fbExcludeFilterFile
+othello-strategy-examples/.pmd
+othello-strategy-examples/.pmdruleset.xml
+othello-strategy-examples/target
 target

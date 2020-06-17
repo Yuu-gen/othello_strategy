@@ -1,0 +1,8 @@
+#SpotBugs User Preferences
+#Tue Jun 16 22:45:18 CEST 2020
+excludefilter0=.fbExcludeFilterFile|true
+filter_settings_neg=NOISE|
+filter_settings=Low|BAD_PRACTICE,CORRECTNESS,EXPERIMENTAL,I18N,MALICIOUS_CODE,MT_CORRECTNESS,PERFORMANCE,SECURITY,STYLE|false|14
+effort=max
+detector_threshold=3
+run_at_full_build=false
