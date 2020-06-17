@@ -4,6 +4,11 @@ othello-core/.fbExcludeFilterFile
 othello-core/.pmd
 othello-core/.pmdruleset.xml
 othello-core/target
+othello-gui/.checkstyle
+othello-gui/.fbExcludeFilterFile
+othello-gui/.pmd
+othello-gui/.pmdruleset.xml
+othello-gui/target
 othello-strategy-examples/.checkstyle
 othello-strategy-examples/.fbExcludeFilterFile
 othello-strategy-examples/.pmd
