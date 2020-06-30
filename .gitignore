@@ -14,4 +14,9 @@ othello-strategy-examples/.fbExcludeFilterFile
 othello-strategy-examples/.pmd
 othello-strategy-examples/.pmdruleset.xml
 othello-strategy-examples/target
+othello-strategy-template/.checkstyle
+othello-strategy-template/.fbExcludeFilterFile
+othello-strategy-template/.pmd
+othello-strategy-template/.pmdruleset.xml
+othello-strategy-template/target
 target

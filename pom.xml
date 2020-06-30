@@ -14,6 +14,7 @@
 		<module>othello-build-tools</module>
 		<module>othello-core</module>
 		<module>othello-strategy-examples</module>
+		<module>othello-strategy-template</module>
 		<module>othello-gui</module>
 	</modules>
 
