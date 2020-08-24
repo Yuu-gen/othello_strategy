@@ -43,19 +43,21 @@ final class OthelloGameImpl extends DefaultGame<OthelloPlayer, OthelloState, Oth
     /**
      * Creates an Othello game.
      *
-     * @param id                      The ID of this game.
-     * @param initialState            The initial state of the game.
-     * @param strategies              The players' strategies.
-     * @param moveChecker             The move checker.
-     * @param observerFactoryProvider The {@link ObserverFactoryProvider}.
+     * @param id                        The ID of this game.
+     * @param initialState              The initial state of the game.
+     * @param strategies                The players' strategies.
+     * @param maxComputationTimePerMove The maximum computation time per move in seconds.
+     * @param moveChecker               The move checker.
+     * @param observerFactoryProvider   The {@link ObserverFactoryProvider}.
      * @throws IllegalArgumentException if the player sets do not match.
      * @throws InterruptedException     if creating the game has been interrupted.
      */
     OthelloGameImpl(final int id, final OthelloState initialState, final Map<String, OthelloStrategy> strategies,
-            final OthelloMoveChecker moveChecker, final ObserverFactoryProvider observerFactoryProvider)
+            final long maxComputationTimePerMove, final OthelloMoveChecker moveChecker,
+            final ObserverFactoryProvider observerFactoryProvider)
             throws IllegalArgumentException, InterruptedException {
 
-        super(id, initialState, strategies, moveChecker, observerFactoryProvider);
+        super(id, initialState, strategies, maxComputationTimePerMove, moveChecker, observerFactoryProvider);
         this.boardSize = initialState.getBoard().getSize();
     }
 

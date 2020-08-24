@@ -24,6 +24,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import de.fhdw.gaming.core.domain.DefaultObserverFactoryProvider;
+import de.fhdw.gaming.core.domain.GameBuilder;
 import de.fhdw.gaming.core.domain.GameException;
 import de.fhdw.gaming.core.domain.ObserverFactoryProvider;
 import de.fhdw.gaming.othello.core.domain.OthelloGame;
@@ -59,6 +60,10 @@ final class OthelloGameBuilderImpl implements OthelloGameBuilder {
      */
     private Optional<OthelloStrategy> whitePlayerStrategy;
     /**
+     * The maximum computation time per move in seconds.
+     */
+    private int maxComputationTimePerMove;
+    /**
      * The number of rows (and columns) of the board.
      */
     private int boardSize;
@@ -72,6 +77,7 @@ final class OthelloGameBuilderImpl implements OthelloGameBuilder {
         this.blackPlayerStrategy = Optional.empty();
         this.whitePlayer = Optional.empty();
         this.whitePlayerStrategy = Optional.empty();
+        this.maxComputationTimePerMove = GameBuilder.DEFAULT_MAX_COMPUTATION_TIME_PER_MOVE;
         this.boardSize = OthelloGameBuilder.DEFAULT_BOARD_SIZE;
     }
 
@@ -97,6 +103,12 @@ final class OthelloGameBuilderImpl implements OthelloGameBuilder {
                             "Adding player %s is not allowed as a player using the same tokens has already been added.",
                             playerBuilder));
         }
+        return this;
+    }
+
+    @Override
+    public OthelloGameBuilder changeMaximumComputationTimePerMove(final int newMaxComputationTimePerMove) {
+        this.maxComputationTimePerMove = newMaxComputationTimePerMove;
         return this;
     }
 
@@ -132,6 +144,7 @@ final class OthelloGameBuilderImpl implements OthelloGameBuilder {
                 id,
                 initialState,
                 strategies,
+                this.maxComputationTimePerMove,
                 AbstractOthelloMove.class::isInstance,
                 this.observerFactoryProvider);
     }

@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import de.fhdw.gaming.core.domain.GameBuilder;
 import de.fhdw.gaming.core.domain.GameBuilderFactory;
 import de.fhdw.gaming.core.domain.GameException;
 import de.fhdw.gaming.core.domain.Strategy;
@@ -55,6 +56,10 @@ public final class OthelloGameBuilderFactoryImpl implements OthelloGameBuilderFa
      */
     static final String PARAM_BOARD_SIZE = "boardSize";
     /**
+     * Parameter for the maximum computation time per move in seconds.
+     */
+    static final String PARAM_MAX_COMPUTATION_TIME_PER_MOVE = "maxComputationTimePerMove";
+    /**
      * Parameter that determines if a player is using black or white tokens.
      */
     static final String PARAM_PLAYER_USING_BLACK_TOKENS = "playerUsingBlackTokens";
@@ -71,6 +76,14 @@ public final class OthelloGameBuilderFactoryImpl implements OthelloGameBuilderFa
      * Maximum number of rows (and columns) of the board.
      */
     private static final int MAX_BOARD_SIZE = 16;
+    /**
+     * Smallest allowed maximum computation time per move in seconds.
+     */
+    private static final int MIN_MAX_COMPUTATION_TIME_PER_MOVE = 1;
+    /**
+     * Largest allowed maximum computation time per move in seconds.
+     */
+    private static final int MAX_MAX_COMPUTATION_TIME_PER_MOVE = 3600;
 
     /**
      * All available Othello strategies.
@@ -149,9 +162,20 @@ public final class OthelloGameBuilderFactoryImpl implements OthelloGameBuilderFa
                                 public String getInfo() {
                                     return "The value must be an even number.";
                                 }
-                            }).requestData("Board properties");
+                            })
+                            .needInteger(
+                                    OthelloGameBuilderFactoryImpl.PARAM_MAX_COMPUTATION_TIME_PER_MOVE,
+                                    "Maximum computation time per move in seconds",
+                                    Optional.of(GameBuilder.DEFAULT_MAX_COMPUTATION_TIME_PER_MOVE),
+                                    new MinValueValidator<>(
+                                            OthelloGameBuilderFactoryImpl.MIN_MAX_COMPUTATION_TIME_PER_MOVE),
+                                    new MaxValueValidator<>(
+                                            OthelloGameBuilderFactoryImpl.MAX_MAX_COMPUTATION_TIME_PER_MOVE))
+                            .requestData("Board properties");
 
             gameBuilder.changeBoardSize((Integer) gameData.get(OthelloGameBuilderFactoryImpl.PARAM_BOARD_SIZE));
+            gameBuilder.changeMaximumComputationTimePerMove(
+                    (Integer) gameData.get(OthelloGameBuilderFactoryImpl.PARAM_MAX_COMPUTATION_TIME_PER_MOVE));
 
             final InputProvider firstPlayerInputProvider = inputProvider.getNext(gameData);
             final Map<String, Object> firstPlayerData = this
