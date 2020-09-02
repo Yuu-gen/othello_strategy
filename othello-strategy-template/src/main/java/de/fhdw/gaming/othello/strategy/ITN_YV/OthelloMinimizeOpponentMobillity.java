@@ -63,8 +63,7 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
     private OthelloBoard workboard = null;
 
     @Override
-    public Optional<OthelloMove> computeNextMove(final int gameId, final OthelloPlayer player, final OthelloState state)
-            throws GameException {
+    public Optional<OthelloMove> computeNextMove(final int gameId, final OthelloPlayer player, final OthelloState state) throws GameException {
 
         this.workboard = state.getBoard().deepCopy();
         final boolean usingBlackTokens = player.isUsingBlackTokens();
@@ -109,10 +108,18 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
 
         // We did not find a suitable field, so we simply place a token on the first active field.
         // System.out.println(activeFields.get(0) + "will be placed");
-        System.out.println(
-                this.crushTree(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, 5), usingBlackTokens,5)
-                        .toString()
-        );
+        try {
+            System.out.println(
+                    this.crushTree(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, 5), usingBlackTokens,5)
+                            .toString()
+            );
+        } catch (GameException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
         final OthelloField bestField = this.calculate(activeFields, usingBlackTokens, state);
         return Optional.of(this.moveFactory.createPlaceTokenMove(usingBlackTokens, bestField.getPosition()));
@@ -281,16 +288,17 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
 
     /**
      * Should remove the lowest layer and propagate its values up the tree acording to minmax.
-     * probably sometimes throws "index 0 out of range for length 0" for unknown reasons
+     * probably sometimes throws "index 0 out of range for length 0" because compare sometimes gets passed an empty List as group
      * @param rootnode
      * @param usingBlackTokens
      * @return
+     * @throws Exception 
      */
-    private Node<FieldIntTuple> shrinkTree(final Node<FieldIntTuple> rootnode, final boolean usingBlackTokens) {
+    private Node<FieldIntTuple> shrinkTree(final Node<FieldIntTuple> rootnode, final boolean usingBlackTokens) throws Exception {
         boolean currentUsingBlackTokens = usingBlackTokens;
         final List<List<Node<FieldIntTuple>>> lNodes = rootnode.getOrganizedLowestLayer();
         for (int i = 0; i < lNodes.size(); i++) {
-            lNodes.get(i).get(0).getParent().
+            rootnode.getLowestLayer().get(0).getParent().
             setData(new FieldIntTuple(this.compare(lNodes.get(i), currentUsingBlackTokens).getValue(),
                     lNodes.get(i).get(0).getParent().getData().getField()));
             for (int j = 0; j < lNodes.get(i).size(); j++) {
@@ -318,16 +326,34 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
      * @param group
      * @param usingBlackTokens
      * @return
+     * @throws Exception 
      */
-    private FieldIntTuple compare(final List<Node<FieldIntTuple>> group, final boolean usingBlackTokens) {
-        if (usingBlackTokens) {
-            return group.parallelStream().max((i, j) -> i.getData().getValue().compareTo(j.getData().getValue())).get()
-                    .getData();
-        } else {
-            return group.parallelStream().min((i, j) -> i.getData().getValue().compareTo(j.getData().getValue())).get()
-                    .getData();
+    private FieldIntTuple compare(final List<Node<FieldIntTuple>> group, final boolean usingBlackTokens) throws Exception {
+        try {
+            group.get(0).getData();
+        } catch (Exception e) {
+            throw new Exception(e + " Wieso übergibt group eine Leere Liste?");
         }
-    }
+        FieldIntTuple bestField = group.get(0).getData();
+        if (usingBlackTokens) {
+            for (Node<FieldIntTuple> node : group) {
+                if (node.getData().getValue()>bestField.getValue()) {
+                    bestField=node.getData();
+                }
+            }
+        }
+            else {
+                if (usingBlackTokens) {
+                    for (Node<FieldIntTuple> node : group) {
+                        if (node.getData().getValue()<bestField.getValue()) {
+                            bestField=node.getData();
+                        }
+                    }
+            }
+            }
+        return bestField;
+        }
+
     
     /**
      * Evaluates which move should be made according to minmax.
@@ -335,8 +361,9 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
      * @param usingBlackTokens
      * @param depth
      * @return
+     * @throws Exception 
      */
-    private OthelloPosition crushTree(Node<FieldIntTuple> rootnode,boolean usingBlackTokens,Integer depth) {
+    private OthelloPosition crushTree(Node<FieldIntTuple> rootnode,boolean usingBlackTokens,Integer depth) throws Exception {
         boolean currentUsingBlackTokens = usingBlackTokens;
         Node<FieldIntTuple> currentrootnode = rootnode;
         for (int i = 0; i < depth; i++) {
