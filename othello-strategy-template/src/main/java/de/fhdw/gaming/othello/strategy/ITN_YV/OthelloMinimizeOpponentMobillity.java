@@ -251,7 +251,7 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
      */
     private Node<FieldIntTuple> buildTree(final OthelloBoard board, final boolean usingBlackTokens,
             final List<OthelloField> activeFields, final Integer depth) throws GameException {
-        final Node<FieldIntTuple> outTree = this.growTree(setup(board,usingBlackTokens).get(0), usingBlackTokens, activeFields);
+        final Node<FieldIntTuple> outTree = this.growTree(board.getFields().get(0).get(0), usingBlackTokens, activeFields);
         boolean currentUsingBlackTokens = usingBlackTokens;
         for (int i = 0; i < depth; i++) {
             currentUsingBlackTokens = !currentUsingBlackTokens;
@@ -279,6 +279,13 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
                 - board.getFieldsBeing(OthelloFieldState.WHITE).size();
     }
 
+    /**
+     * Should remove the lowest layer and propagate its values up the tree acording to minmax.
+     * probably sometimes throws "index 0 out of range for length 0" for unknown reasons
+     * @param rootnode
+     * @param usingBlackTokens
+     * @return
+     */
     private Node<FieldIntTuple> shrinkTree(final Node<FieldIntTuple> rootnode, final boolean usingBlackTokens) {
         boolean currentUsingBlackTokens = usingBlackTokens;
         final List<List<Node<FieldIntTuple>>> lNodes = rootnode.getOrganizedLowestLayer();
@@ -304,6 +311,14 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
         return rootnode;
     }
 
+    /**
+     * Returns the minimum or the maximum value FieldIntTuple out of the List it is provided.
+     * minimum if usingBlackTokens is false
+     * maximum if usingBlackTokens is true
+     * @param group
+     * @param usingBlackTokens
+     * @return
+     */
     private FieldIntTuple compare(final List<Node<FieldIntTuple>> group, final boolean usingBlackTokens) {
         if (usingBlackTokens) {
             return group.parallelStream().max((i, j) -> i.getData().getValue().compareTo(j.getData().getValue())).get()
@@ -314,6 +329,13 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
         }
     }
     
+    /**
+     * Evaluates which move should be made according to minmax.
+     * @param rootnode
+     * @param usingBlackTokens
+     * @param depth
+     * @return
+     */
     private OthelloPosition crushTree(Node<FieldIntTuple> rootnode,boolean usingBlackTokens,Integer depth) {
         boolean currentUsingBlackTokens = usingBlackTokens;
         Node<FieldIntTuple> currentrootnode = rootnode;
