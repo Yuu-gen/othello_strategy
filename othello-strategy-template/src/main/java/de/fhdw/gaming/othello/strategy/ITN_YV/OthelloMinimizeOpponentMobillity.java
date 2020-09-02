@@ -110,7 +110,7 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
         // We did not find a suitable field, so we simply place a token on the first active field.
         // System.out.println(activeFields.get(0) + "will be placed");
         System.out.println(
-                this.crushTree(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, 2), usingBlackTokens,2)
+                this.crushTree(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, 5), usingBlackTokens,5)
                         .toString()
         );
 
@@ -207,6 +207,8 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
     /**
      * Builds a one layer deep tree with the board you give it as root and all possible boards one move into the future
      * as children.
+     * 
+     * Dosen't understand skipmoves correctly , the current if else is just a temporary fix
      *
      * @param board
      * @param usingBlackTokens
@@ -214,65 +216,23 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
      * @return
      * @throws GameException
      */
-    private Node<FieldIntTuple> growTree(final OthelloBoard board, final boolean usingBlackTokens,
+    private Node<FieldIntTuple> growTree(final OthelloField field, final boolean usingBlackTokens,
             final List<OthelloField> activeFields) throws GameException {
-        final Node<FieldIntTuple> rootpos = new Node<>(new FieldIntTuple(0, new OthelloField() {
-            
-            @Override
-            public void placeToken(boolean blackToken) throws GameException {
-                // TODO Auto-generated method stub
-                
-            }
-            
-            @Override
-            public boolean isActive(boolean placingBlackToken) {
-                // TODO Auto-generated method stub
-                return false;
-            }
-            
-            @Override
-            public boolean hasNeighbour(OthelloDirection direction) {
-                // TODO Auto-generated method stub
-                return false;
-            }
-            
-            @Override
-            public OthelloFieldState getState() {
-                // TODO Auto-generated method stub
-                return null;
-            }
-            
-            @Override
-            public OthelloPosition getPosition() {
-                // TODO Auto-generated method stub
-                return null;
-            }
-            
-            @Override
-            public OthelloField getNeighbour(OthelloDirection direction) throws IllegalArgumentException {
-                // TODO Auto-generated method stub
-                return null;
-            }
-            
-            @Override
-            public Set<? extends OthelloField> getLineOfTokens(OthelloDirection direction, OthelloFieldState delimiterState) {
-                // TODO Auto-generated method stub
-                return null;
-            }
-            
-            @Override
-            public OthelloBoard getBoard() {
-                // TODO Auto-generated method stub
-                return null;
-            }
-        }));
+        final Node<FieldIntTuple> rootpos = new Node<>(new FieldIntTuple(0, field));
         OthelloField workfield = null;
+        List<OthelloField> workactiveFields= null;
 
         for (int i = 0; i < activeFields.size(); i++) {
-            this.workboard = board.deepCopy();
+            this.workboard = field.getBoard().deepCopy();
+            workactiveFields = this.setup(this.workboard, usingBlackTokens);
+            if(workactiveFields.isEmpty()) {
+                rootpos.addChild(new Node<>(new FieldIntTuple(this.evaluateBoard(workfield.getBoard()), workfield)));
+            }
+            else {
             workfield = this.setup(this.workboard, usingBlackTokens).get(i);
             workfield.placeToken(usingBlackTokens);
             rootpos.addChild(new Node<>(new FieldIntTuple(this.evaluateBoard(workfield.getBoard()), workfield)));
+            }
         }
 
         return rootpos;
@@ -291,14 +251,14 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
      */
     private Node<FieldIntTuple> buildTree(final OthelloBoard board, final boolean usingBlackTokens,
             final List<OthelloField> activeFields, final Integer depth) throws GameException {
-        final Node<FieldIntTuple> outTree = this.growTree(board, usingBlackTokens, activeFields);
+        final Node<FieldIntTuple> outTree = this.growTree(setup(board,usingBlackTokens).get(0), usingBlackTokens, activeFields);
         boolean currentUsingBlackTokens = usingBlackTokens;
         for (int i = 0; i < depth; i++) {
             currentUsingBlackTokens = !currentUsingBlackTokens;
             for (final Node<FieldIntTuple> node : outTree.getChildren()) {
                 node.addChild(
                         this.growTree(
-                                node.getData().getField().getBoard(),
+                                node.getData().getField(),
                                 currentUsingBlackTokens,
                                 this.setup(node.getData().getField().getBoard(), currentUsingBlackTokens)));
             }
@@ -357,12 +317,13 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
     private OthelloPosition crushTree(Node<FieldIntTuple> rootnode,boolean usingBlackTokens,Integer depth) {
         boolean currentUsingBlackTokens = usingBlackTokens;
         Node<FieldIntTuple> currentrootnode = rootnode;
-        for (int i = 0; i < depth - 1; i++) {
+        for (int i = 0; i < depth; i++) {
             currentUsingBlackTokens=!currentUsingBlackTokens;
             currentrootnode=shrinkTree(currentrootnode, currentUsingBlackTokens);
             
-        }        
-        return compare(currentrootnode.getOrganizedLowestLayer().get(0), currentUsingBlackTokens).getField().getPosition();
+        } 
+//        return currentrootnode.getLowestLayer();
+        return compare(currentrootnode.getLowestLayer(), currentUsingBlackTokens).getField().getPosition();
     }
 
 }
