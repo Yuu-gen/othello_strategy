@@ -16,14 +16,14 @@
  * You should have received a copy of the GNU General Public License
  * along with othello-strategy-template.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.fhdw.gaming.othello.strategy.template;
+package de.fhdw.gaming.othello.strategy.ITN_YV;
 
 import de.fhdw.gaming.othello.core.domain.OthelloStrategy;
 import de.fhdw.gaming.othello.core.domain.factory.OthelloStrategyFactory;
 import de.fhdw.gaming.othello.core.moves.factory.OthelloMoveFactory;
 
 /**
- * Implements {@link OthelloStrategyFactory} by creating an {@link OthelloMyStrategy}. An object of this class is
+ * Implements {@link OthelloStrategyFactory} by creating an {@link OthelloMinimizeOpponentMobillity}. An object of this class is
  * dynamically created by othello-core using Java's {@link java.util.ServiceLoader}. See especially
  * {@link de.fhdw.gaming.othello.core.domain.factory.OthelloDefaultStrategyFactoryProvider#getStrategyFactories()}.
  */
@@ -31,6 +31,6 @@ public final class OthelloMyStrategyFactory implements OthelloStrategyFactory {
 
     @Override
     public OthelloStrategy create(final OthelloMoveFactory moveFactory) {
-        return new OthelloMyStrategy(moveFactory);
+        return new OthelloMinimizeOpponentMobillity(moveFactory);
     }
 }
