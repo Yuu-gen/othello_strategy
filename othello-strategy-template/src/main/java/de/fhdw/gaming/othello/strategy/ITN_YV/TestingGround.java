@@ -8,11 +8,11 @@ public class TestingGround {
         final Node<String> root = testgen();
         final List<List<Node<String>>> lNodes = root.getOrganizedLowestLayer();
 
-        for (int i = 0; i < lNodes.size(); i++) {
-            for (int j = 0; j < lNodes.get(i).size(); j++) {
-                lNodes.get(i).get(j).deleteNode();
-            }
-        }
+//        for (int i = 0; i < lNodes.size(); i++) {
+//            for (int j = 0; j < lNodes.get(i).size(); j++) {
+//                lNodes.get(i).get(j).deleteNode();
+//            }
+//        }
 //        for (int i = 0; i < lNodes.size(); i++) {
 //            for (int j = 0; j < lNodes.get(i).size(); j++) {
 //                lNodes.get(i).get(j).deleteNode();

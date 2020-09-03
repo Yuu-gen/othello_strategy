@@ -97,6 +97,7 @@ public class Node<DATATYPE> {
     public List<List<Node<DATATYPE>>> getOrganizedLowestLayer() {
         final List<Node<DATATYPE>> parents = new ArrayList<>();
         final List<Node<DATATYPE>> flatLowestLayer = this.getLowestLayer();
+        List<Node<DATATYPE>> group = new ArrayList<>();
         for (final Node<DATATYPE> node : flatLowestLayer) {
             if (!parents.contains(node.getParent())) {
                 parents.add(node.getParent());
@@ -104,7 +105,16 @@ public class Node<DATATYPE> {
         }
         final List<List<Node<DATATYPE>>> outNodes = new ArrayList<>();
         for (final Node<DATATYPE> parent : parents) {
-            outNodes.add(parent.getChildren());
+            if (parent != null) {
+//                outNodes.add(parent.getChildren());
+                for (final Node<DATATYPE> node : parent.getChildren()) {
+                    if (flatLowestLayer.contains(node)) {
+                        group.add(node);
+                    }
+                }
+                outNodes.add(group);
+                group = new ArrayList<>();
+            }
         }
         // outNodes.add(parents);
         return outNodes;
@@ -179,14 +189,8 @@ public class Node<DATATYPE> {
     }
 
     @Override
-    public String toString() {
-        String output = "";
-        output += this.getData();
-        output += "\n";
-        for (final Node<DATATYPE> node : this.getChildren()) {
-            output += node.toString();
-        }
-        return output;
+    public String toString() {     
+        return this.getData().toString();
     }
 
 }

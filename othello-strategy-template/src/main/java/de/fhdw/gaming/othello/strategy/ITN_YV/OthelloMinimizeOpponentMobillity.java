@@ -108,21 +108,28 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
 
         // We did not find a suitable field, so we simply place a token on the first active field.
         // System.out.println(activeFields.get(0) + "will be placed");
-        try {
-            System.out.println(
-                    this.crushTree(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, 5), usingBlackTokens,5)
-                            .toString()
-            );
-        } catch (GameException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        
+        
+        
+//        try {
+//            System.out.println(
+//                    this.crushTree(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, 5), usingBlackTokens,5)
+//                            .toString()
+//            );
+//        } catch (GameException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        } catch (Exception e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
+        
 
-        final OthelloField bestField = this.calculate(activeFields, usingBlackTokens, state);
-        return Optional.of(this.moveFactory.createPlaceTokenMove(usingBlackTokens, bestField.getPosition()));
+        final FieldIntTuple besttuple = this.crushTree(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, 5), usingBlackTokens,5);
+        System.out.println(besttuple.getValue());
+        final OthelloPosition bestposition = besttuple.getField().getPosition();
+//        final OthelloPosition bestposition = this.calculate(activeFields, usingBlackTokens, state);
+        return Optional.of(this.moveFactory.createPlaceTokenMove(usingBlackTokens, bestposition));
     }
 
     @Override
@@ -193,7 +200,7 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
      * @return field on which a token should be placed
      * @throws GameException
      */
-    private OthelloField calculate(final List<OthelloField> activeFields, final boolean usingBlackTokens,
+    private OthelloPosition calculate(final List<OthelloField> activeFields, final boolean usingBlackTokens,
             final OthelloState state) throws GameException {
         OthelloField bestField = activeFields.get(0);
         Integer bestFieldValue = 100;
@@ -208,7 +215,7 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
                 bestFieldValue = value;
             }
         }
-        return bestField;
+        return bestField.getPosition();
     }
 
     /**
@@ -236,7 +243,7 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
                 rootpos.addChild(new Node<>(new FieldIntTuple(this.evaluateBoard(workfield.getBoard()), workfield)));
             }
             else {
-            workfield = this.setup(this.workboard, usingBlackTokens).get(i);
+            workfield = this.setup(this.workboard, usingBlackTokens).get(i);//the setup call could probably be replaced with workactivefields
             workfield.placeToken(usingBlackTokens);
             rootpos.addChild(new Node<>(new FieldIntTuple(this.evaluateBoard(workfield.getBoard()), workfield)));
             }
@@ -262,12 +269,16 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
         boolean currentUsingBlackTokens = usingBlackTokens;
         for (int i = 0; i < depth; i++) {
             currentUsingBlackTokens = !currentUsingBlackTokens;
-            for (final Node<FieldIntTuple> node : outTree.getChildren()) {
-                node.addChild(
-                        this.growTree(
+            for (final Node<FieldIntTuple> node : outTree.getLowestLayer()) {
+                node.addChildren(this.growTree(
                                 node.getData().getField(),
                                 currentUsingBlackTokens,
-                                this.setup(node.getData().getField().getBoard(), currentUsingBlackTokens)));
+                                this.setup(node.getData().getField().getBoard(), currentUsingBlackTokens)).getChildren());  
+//                (
+//                        this.growTree(
+//                                node.getData().getField(),
+//                                currentUsingBlackTokens,
+//                                this.setup(node.getData().getField().getBoard(), currentUsingBlackTokens)));
             }
 
         }
@@ -294,11 +305,15 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
      * @return
      * @throws Exception 
      */
-    private Node<FieldIntTuple> shrinkTree(final Node<FieldIntTuple> rootnode, final boolean usingBlackTokens) throws Exception {
+    private Node<FieldIntTuple> shrinkTree(final Node<FieldIntTuple> rootnode, final boolean usingBlackTokens){
         boolean currentUsingBlackTokens = usingBlackTokens;
         final List<List<Node<FieldIntTuple>>> lNodes = rootnode.getOrganizedLowestLayer();
         for (int i = 0; i < lNodes.size(); i++) {
-            rootnode.getLowestLayer().get(0).getParent().
+            if (lNodes.get(i).isEmpty()) {
+                continue;
+            }
+            
+            lNodes.get(i).get(0).getParent().
             setData(new FieldIntTuple(this.compare(lNodes.get(i), currentUsingBlackTokens).getValue(),
                     lNodes.get(i).get(0).getParent().getData().getField()));
             for (int j = 0; j < lNodes.get(i).size(); j++) {
@@ -328,30 +343,14 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
      * @return
      * @throws Exception 
      */
-    private FieldIntTuple compare(final List<Node<FieldIntTuple>> group, final boolean usingBlackTokens) throws Exception {
-        try {
-            group.get(0).getData();
-        } catch (Exception e) {
-            throw new Exception(e + " Wieso übergibt group eine Leere Liste?");
-        }
-        FieldIntTuple bestField = group.get(0).getData();
+    private FieldIntTuple compare(final List<Node<FieldIntTuple>> group, final boolean usingBlackTokens){
         if (usingBlackTokens) {
-            for (Node<FieldIntTuple> node : group) {
-                if (node.getData().getValue()>bestField.getValue()) {
-                    bestField=node.getData();
-                }
-            }
+            return group.parallelStream().max((i, j) -> i.getData().getValue().compareTo(j.getData().getValue())).get()
+                    .getData();
+        } else {
+            return group.parallelStream().min((i, j) -> i.getData().getValue().compareTo(j.getData().getValue())).get()
+                    .getData();
         }
-            else {
-                if (usingBlackTokens) {
-                    for (Node<FieldIntTuple> node : group) {
-                        if (node.getData().getValue()<bestField.getValue()) {
-                            bestField=node.getData();
-                        }
-                    }
-            }
-            }
-        return bestField;
         }
 
     
@@ -363,16 +362,16 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
      * @return
      * @throws Exception 
      */
-    private OthelloPosition crushTree(Node<FieldIntTuple> rootnode,boolean usingBlackTokens,Integer depth) throws Exception {
+    private FieldIntTuple crushTree(Node<FieldIntTuple> rootnode,boolean usingBlackTokens,Integer depth){
         boolean currentUsingBlackTokens = usingBlackTokens;
         Node<FieldIntTuple> currentrootnode = rootnode;
         for (int i = 0; i < depth; i++) {
-            currentUsingBlackTokens=!currentUsingBlackTokens;
             currentrootnode=shrinkTree(currentrootnode, currentUsingBlackTokens);
+            currentUsingBlackTokens=!currentUsingBlackTokens;
             
         } 
 //        return currentrootnode.getLowestLayer();
-        return compare(currentrootnode.getLowestLayer(), currentUsingBlackTokens).getField().getPosition();
+        return compare(currentrootnode.getLowestLayer(), currentUsingBlackTokens);
     }
 
 }
