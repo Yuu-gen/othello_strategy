@@ -125,7 +125,7 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
 //        }
         
 
-        final FieldIntTuple besttuple = this.crushTree(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, 5), usingBlackTokens,5);
+        final FieldIntTuple besttuple = this.crushTree(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, 4), usingBlackTokens,4);
         System.out.println(besttuple.getValue());
         final OthelloPosition bestposition = besttuple.getField().getPosition();
 //        final OthelloPosition bestposition = this.calculate(activeFields, usingBlackTokens, state);
@@ -168,7 +168,7 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
         // possible to place a suitable token according to the rules of the game.
         // (Of course you can use a traditional for-each loop instead of streams for filtering.)
         final List<OthelloField> activeFields = new ArrayList<>();
-        emptyFields.values().stream().filter((final OthelloField field) -> field.isActive(usingBlackTokens))
+        emptyFields.values().parallelStream().filter((final OthelloField field) -> field.isActive(usingBlackTokens))
                 .forEachOrdered(activeFields::add);
         return activeFields;
     }
