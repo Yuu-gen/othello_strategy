@@ -587,6 +587,12 @@ final class OthelloBoardView implements OthelloObserver {
     }
 
     @Override
+    public void overdueMoveRejected(final Game<?, ?, ?, ?> game, final State<?, ?> state, final Player player,
+            final Optional<Move<?, ?>> chosenMove) {
+        // nothing to do
+    }
+
+    @Override
     public void playerResigned(final Game<?, ?, ?, ?> game, final State<?, ?> state, final Player player) {
         // nothing to do
     }
