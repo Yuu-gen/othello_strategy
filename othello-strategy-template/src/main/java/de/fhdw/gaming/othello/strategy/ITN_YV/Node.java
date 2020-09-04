@@ -53,7 +53,7 @@ public class Node<DATATYPE> {
      * @param children
      */
     public void addChildren(final List<Node<DATATYPE>> children) {
-        children.forEach(each -> each.setParent(this));
+        children.parallelStream().forEach(each -> each.setParent(this));
         this.children.addAll(children);
     }
 
@@ -124,9 +124,7 @@ public class Node<DATATYPE> {
         if (this.parent != null) {
             final int index = this.parent.getChildren().indexOf(this);
             this.parent.getChildren().remove(this);
-            for (final Node<DATATYPE> each : this.getChildren()) {
-                each.setParent(this.parent);
-            }
+            this.getChildren().parallelStream().forEach(each -> each.setParent(this.parent));
             this.parent.getChildren().addAll(index, this.getChildren());
         } else {
             this.deleteRootNode();
@@ -189,7 +187,7 @@ public class Node<DATATYPE> {
     }
 
     @Override
-    public String toString() {     
+    public String toString() {
         return this.getData().toString();
     }
 

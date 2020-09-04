@@ -269,16 +269,15 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
         boolean currentUsingBlackTokens = usingBlackTokens;
         for (int i = 0; i < depth; i++) {
             currentUsingBlackTokens = !currentUsingBlackTokens;
-            for (final Node<FieldIntTuple> node : outTree.getLowestLayer()) {
+            for (final Node<FieldIntTuple> node : outTree.getLowestLayer()) {   //sadly i don't think i can replace this for loop
+                                                                                //with a parallel stream because it uses an outside
+                                                                                //variable that is not final. but perhaps this could
+                                                                                //be circumvented by having current using black tokens
+                                                                                //be a final list of alternating true and false booleans (as many as depth is)
                 node.addChildren(this.growTree(
                                 node.getData().getField(),
                                 currentUsingBlackTokens,
                                 this.setup(node.getData().getField().getBoard(), currentUsingBlackTokens)).getChildren());  
-//                (
-//                        this.growTree(
-//                                node.getData().getField(),
-//                                currentUsingBlackTokens,
-//                                this.setup(node.getData().getField().getBoard(), currentUsingBlackTokens)));
             }
 
         }
