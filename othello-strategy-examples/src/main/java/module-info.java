@@ -21,5 +21,6 @@ module de.fhdw.gaming.othello.strategy.examples {
     provides de.fhdw.gaming.othello.core.domain.factory.OthelloStrategyFactory
             with de.fhdw.gaming.othello.strategy.examples.first.OthelloFirstMoveFoundStrategyFactory,
             de.fhdw.gaming.othello.strategy.examples.random.OthelloRandomMoveStrategyFactory,
-            de.fhdw.gaming.othello.strategy.examples.maxFlips.OthelloMaxFlipsMoveStrategyFactory;
+            de.fhdw.gaming.othello.strategy.examples.maxFlips.OthelloMaxFlipsMoveStrategyFactory,
+            de.fhdw.gaming.othello.strategy.examples.minOppMob.OthelloMinOppMobStrategyFactory;
 }
