@@ -144,19 +144,6 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
     }
 
     /**
-     * Determines if there is a neighbour field with the opponent's token in a given direction.
-     *
-     * @param field        The start field.
-     * @param direction    The direction to turn to.
-     * @param desiredState The expected state of the neighbour field.
-     * @return {@code true} if the neighbour field exists and has the expected state, else {@code false}.
-     */
-    private static boolean isOpponent(final OthelloField field, final OthelloDirection direction,
-            final OthelloFieldState desiredState) {
-        return field.hasNeighbour(direction) && field.getNeighbour(direction).getState().equals(desiredState);
-    }
-
-    /**
      * Generates a list of active fields, wich is neccassary for almost all Strategies.
      *
      * @param board            the Board to find the active fields of
@@ -177,51 +164,6 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
         emptyFields.values().parallelStream().filter((final OthelloField field) -> field.isActive(usingBlackTokens))
                 .forEachOrdered(activeFields::add);
         return activeFields;
-    }
-
-    /**
-     * Assigns a value to a field representing how good placing a token on it would be.
-     *
-     * @param field            field to be evaluated
-     * @param usingBlackTokens If black is the player to move
-     * @return value of the field (you want to maximize this for you and minimize it for your opponent
-     * @throws GameException
-     */
-    private Integer evaluate(final OthelloField field, final boolean usingBlackTokens) throws GameException {
-        field.placeToken(usingBlackTokens);
-        final Integer value = this.setup(field.getBoard(), !usingBlackTokens).size();
-        return value;
-    }
-
-    /**
-     * Determines which field a token should be placed on.
-     *
-     * @inefficient generates the same List of active Fields for each examined move.But i don't know how to rectify this
-     *              because java makes cloning hard.
-     *
-     * @param activeFields     a List of fields a Token could be placed on
-     * @param usingBlackTokens If black is the player to move
-     * @param workstate        state to be manipulated for calculation (copy of state)
-     * @param state            state for which a move is to be determined
-     * @return field on which a token should be placed
-     * @throws GameException
-     */
-    private OthelloPosition calculate(final List<OthelloField> activeFields, final boolean usingBlackTokens,
-            final OthelloState state) throws GameException {
-        OthelloField bestField = activeFields.get(0);
-        Integer bestFieldValue = 100;
-        Integer value = 0;
-
-        for (int i = 0; i < activeFields.size(); i++) {
-            this.workboard = state.getBoard().deepCopy();
-            value = this.evaluate(this.setup(this.workboard, usingBlackTokens).get(i), usingBlackTokens);
-            // System.out.println(this.oldstate.getBoard());
-            if (value < bestFieldValue) {
-                bestField = activeFields.get(i);
-                bestFieldValue = value;
-            }
-        }
-        return bestField.getPosition();
     }
 
     /**
