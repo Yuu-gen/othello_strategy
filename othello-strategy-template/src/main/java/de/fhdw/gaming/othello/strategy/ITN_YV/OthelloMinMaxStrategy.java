@@ -177,26 +177,7 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
      * @return
      * @throws GameException
      */
-//    private Node<FieldIntTuple> growTree(final OthelloField field, final boolean usingBlackTokens,
-//            final List<OthelloField> activeFields) throws GameException {
-//        final Node<FieldIntTuple> rootpos = new Node<>(new FieldIntTuple(0, field));
-//        OthelloField workfield = null;
-//        List<OthelloField> workactiveFields = null;
-//        if (activeFields.isEmpty()) {
-//            rootpos.addChild(new Node<>(new FieldIntTuple(this.evaluateBoard(field.getBoard()), field)));
-//        }
-//
-//        for (int i = 0; i < activeFields.size(); i++) {
-//            this.workboard = field.getBoard().deepCopy();
-//            workactiveFields = this.setup(this.workboard, usingBlackTokens);
-//            workfield = this.setup(this.workboard, usingBlackTokens).get(i);// the setup call could probably be replaced
-//                                                                            // with workactivefields
-//            workfield.placeToken(usingBlackTokens);
-//            rootpos.addChild(new Node<>(new FieldIntTuple(this.evaluateBoard(workfield.getBoard()), workfield)));
-//        }
-//
-//        return rootpos;
-//    }
+
     private Node<FieldIntTuple> growTree(final OthelloField field, final boolean usingBlackTokens,
             final List<OthelloField> activeFields) throws GameException {
         final Node<FieldIntTuple> rootpos = new Node<>(new FieldIntTuple(0, field));
@@ -270,19 +251,50 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
      * @return
      */
     private Integer evaluateBoard(final OthelloBoard board) {
-//        return setup(board, true).size()-setup(board, false).size(); //evaluation based on active Fields
+        // evaluation based on active Fields:
+//        return setup(board, true).size()-setup(board, false).size();
 
         // evaluation based on number of Tokens:
 
-        final Integer BlackFields = board.getFieldsBeing(OthelloFieldState.BLACK).size();
-        final Integer WhiteFields = board.getFieldsBeing(OthelloFieldState.WHITE).size();
-        if (BlackFields.equals(0)) {
-            return -64;
+        final Map<OthelloPosition, ? extends OthelloField> BlackFields = board.getFieldsBeing(OthelloFieldState.BLACK);
+        final Map<OthelloPosition, ? extends OthelloField> WhiteFields = board.getFieldsBeing(OthelloFieldState.WHITE);
+        Integer BlackFieldsNum = BlackFields.size();
+        Integer WhiteFieldsNum = WhiteFields.size();
+
+        // The following If Hell is stupid.But I was to stupid to find anything better
+        if (BlackFields.toString().contains("A1")) {
+            BlackFieldsNum += 1;
         }
-        if (WhiteFields.equals(0)) {
-            return 64;
+        if (BlackFields.toString().contains("A8")) {
+            BlackFieldsNum += 1;
+        }
+        if (BlackFields.toString().contains("H1")) {
+            BlackFieldsNum += 1;
+        }
+        if (BlackFields.toString().contains("H8")) {
+            BlackFieldsNum += 1;
+        }
+
+        if (WhiteFields.toString().contains("A1")) {
+            WhiteFieldsNum += 1;
+        }
+        if (WhiteFields.toString().contains("A8")) {
+            WhiteFieldsNum += 1;
+        }
+        if (WhiteFields.toString().contains("H1")) {
+            WhiteFieldsNum += 1;
+        }
+        if (WhiteFields.toString().contains("H8")) {
+            WhiteFieldsNum += 1;
+        }
+
+        if (BlackFieldsNum.equals(0)) {
+            return -68;
+        }
+        if (WhiteFieldsNum.equals(0)) {
+            return 68;
         } else {
-            return BlackFields - WhiteFields;
+            return BlackFieldsNum - WhiteFieldsNum;
         }
     }
 
