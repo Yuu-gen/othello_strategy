@@ -202,16 +202,14 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
             final List<OthelloField> activeFields) throws GameException {
         final Node<FieldIntTuple> rootpos = new Node<>(new FieldIntTuple(0, field));
         OthelloField workfield = null;
-        List<OthelloField> workactiveFields = null;
         if (activeFields.isEmpty()) {
             rootpos.addChild(new Node<>(new FieldIntTuple(0, field)));
         }
 
         for (int i = 0; i < activeFields.size(); i++) {
             this.workboard = field.getBoard().deepCopy();
-            workactiveFields = this.setup(this.workboard, usingBlackTokens);
-            workfield = this.setup(this.workboard, usingBlackTokens).get(i);// the setup call could probably be replaced
-                                                                            // with workactivefields
+            workfield = this.setup(this.workboard, usingBlackTokens).get(i);
+                                                                           
             workfield.placeToken(usingBlackTokens);
             rootpos.addChild(new Node<>(new FieldIntTuple(0, workfield)));
         }
