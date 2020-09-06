@@ -40,7 +40,7 @@ import de.fhdw.gaming.othello.core.moves.factory.OthelloMoveFactory;
  * <p>
  * TODO: Describe what it does.
  */
-public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
+public final class OthelloMinMaxStrategy implements OthelloStrategy {
 
     /**
      * The factory for creating Othello moves.
@@ -52,9 +52,14 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
      *
      * @param moveFactory The factory for creating Othello moves.
      */
-    OthelloMinimizeOpponentMobillity(final OthelloMoveFactory moveFactory) {
+    OthelloMinMaxStrategy(final OthelloMoveFactory moveFactory) {
         this.moveFactory = moveFactory;
     }
+
+    /**
+     *
+     */
+    private final Integer DEPTHOFTREE = 4;
 
     /**
      * place to put the state before modifying it for computations.
@@ -122,13 +127,11 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
 //            e.printStackTrace();
 //        }
 
-        final FieldIntTuple besttuple = minmax(state, usingBlackTokens, activeFields,4);
-                
-                
+        final FieldIntTuple besttuple = this.minmax(state, usingBlackTokens, activeFields, this.DEPTHOFTREE);
+
 //                this
 //                .crushTree(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, 4), usingBlackTokens, 4);
-        
-        
+
 //        System.out.println(besttuple.getValue());
         final OthelloPosition bestposition = besttuple.getField().getPosition();
 //        final OthelloPosition bestposition = this.calculate(activeFields, usingBlackTokens, state);
@@ -137,7 +140,7 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
 
     @Override
     public String toString() {
-        return OthelloMinimizeOpponentMobillity.class.getSimpleName();
+        return OthelloMinMaxStrategy.class.getSimpleName();
     }
 
     /**
@@ -303,19 +306,18 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
      */
     private Integer evaluateBoard(final OthelloBoard board) {
 //        return setup(board, true).size()-setup(board, false).size(); //evaluation based on active Fields
-        
-        //evaluation based on number of Tokens:
-        
-        Integer BlackFields=board.getFieldsBeing(OthelloFieldState.BLACK).size();
-        Integer WhiteFields=board.getFieldsBeing(OthelloFieldState.WHITE).size();
+
+        // evaluation based on number of Tokens:
+
+        final Integer BlackFields = board.getFieldsBeing(OthelloFieldState.BLACK).size();
+        final Integer WhiteFields = board.getFieldsBeing(OthelloFieldState.WHITE).size();
         if (BlackFields.equals(0)) {
             return -64;
         }
         if (WhiteFields.equals(0)) {
             return 64;
-        }
-        else {
-            return BlackFields-WhiteFields;
+        } else {
+            return BlackFields - WhiteFields;
         }
     }
 
@@ -332,19 +334,19 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
         final boolean currentUsingBlackTokens = usingBlackTokens;
         final List<List<Node<FieldIntTuple>>> lNodes = rootnode.getOrganizedLowestLayer();
 
-        for (int i = 0; i < lNodes.size(); i++) {
-            if (lNodes.get(i).isEmpty()) {
+        for (final List<Node<FieldIntTuple>> lNode : lNodes) {
+            if (lNode.isEmpty()) {
                 continue;
-                }
-
-            lNodes.get(i).get(0).getParent().
-            setData(new FieldIntTuple(this.compare(lNodes.get(i), currentUsingBlackTokens).getValue(),
-                    lNodes.get(i).get(0).getParent().getData().getField()));
-            for (int j = 0; j < lNodes.get(i).size(); j++) {
-                lNodes.get(i).get(j).deleteNode();
-                }
             }
 
+            lNode.get(0).getParent().setData(
+                    new FieldIntTuple(
+                            this.compare(lNode, currentUsingBlackTokens).getValue(),
+                            lNode.get(0).getParent().getData().getField()));
+            for (final Node<FieldIntTuple> element : lNodes.get(i)) {
+                element.deleteNode();
+            }
+        }
 
 //        for (int i = 0; i < lNodes.size(); i++) {
 //            if (lNodes.get(i).isEmpty()) {
@@ -426,15 +428,19 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
 //        return currentrootnode.getLowestLayer();
         return this.compare(currentrootnode.getLowestLayer(), currentUsingBlackTokens);
     }
-    
-    private FieldIntTuple minmax(OthelloState state, boolean usingBlackTokens, List<OthelloField> activeFields, Integer depth) throws GameException {
+
+    private FieldIntTuple minmax(final OthelloState state, final boolean usingBlackTokens,
+            final List<OthelloField> activeFields, final Integer depth) throws GameException {
         if (depth % 2 == 0) {
-            return this
-                    .crushTree(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth), usingBlackTokens, depth);
-        }
-        else {
-            return this
-                    .crushTree(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth), !usingBlackTokens, depth);
+            return this.crushTree(
+                    this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth),
+                    usingBlackTokens,
+                    depth);
+        } else {
+            return this.crushTree(
+                    this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth),
+                    !usingBlackTokens,
+                    depth);
         }
     }
 
