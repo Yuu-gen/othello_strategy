@@ -391,7 +391,7 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
 
         }
 //        return currentrootnode.getLowestLayer();
-        return this.compare(currentrootnode.getLowestLayer(), currentUsingBlackTokens);
+        return this.compare(currentrootnode.getChildren(), currentUsingBlackTokens);
     }
 
     private FieldIntTuple minmax(final OthelloState state, final boolean usingBlackTokens,
