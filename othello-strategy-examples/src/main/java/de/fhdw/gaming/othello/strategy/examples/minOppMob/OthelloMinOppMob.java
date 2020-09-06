@@ -122,7 +122,7 @@ public final class OthelloMinOppMob implements OthelloStrategy {
 //            e.printStackTrace();
 //        }
 
-        final FieldIntTuple besttuple = minmax(state, usingBlackTokens, activeFields,4);
+//        final FieldIntTuple besttuple = minmax(state, usingBlackTokens, activeFields,4);
                 
                 
 //                this
@@ -130,7 +130,7 @@ public final class OthelloMinOppMob implements OthelloStrategy {
         
         
 //        System.out.println(besttuple.getValue());
-        final OthelloPosition bestposition = besttuple.getField().getPosition();
+        final OthelloPosition bestposition = calculate(activeFields, usingBlackTokens, state);
 //        final OthelloPosition bestposition = this.calculate(activeFields, usingBlackTokens, state);
         return Optional.of(this.moveFactory.createPlaceTokenMove(usingBlackTokens, bestposition));
     }
