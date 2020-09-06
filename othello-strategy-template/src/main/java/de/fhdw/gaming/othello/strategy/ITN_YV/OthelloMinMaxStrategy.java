@@ -260,31 +260,34 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
         final Map<OthelloPosition, ? extends OthelloField> WhiteFields = board.getFieldsBeing(OthelloFieldState.WHITE);
         Integer BlackFieldsNum = BlackFields.size();
         Integer WhiteFieldsNum = WhiteFields.size();
+        final String BlackFieldsString = BlackFields.toString();
+        final String WhiteFieldsString = WhiteFields.toString();
 
         // The following If Hell is stupid.But I was to stupid to find anything better
-        if (BlackFields.toString().contains("A1")) {
+        // it would probably be better to test for unflippable fields with an additional method
+        if (BlackFieldsString.contains("A1")) {
             BlackFieldsNum += 1;
         }
-        if (BlackFields.toString().contains("A8")) {
+        if (BlackFieldsString.contains("A8")) {
             BlackFieldsNum += 1;
         }
-        if (BlackFields.toString().contains("H1")) {
+        if (BlackFieldsString.contains("H1")) {
             BlackFieldsNum += 1;
         }
-        if (BlackFields.toString().contains("H8")) {
+        if (BlackFieldsString.contains("H8")) {
             BlackFieldsNum += 1;
         }
 
-        if (WhiteFields.toString().contains("A1")) {
+        if (WhiteFieldsString.contains("A1")) {
             WhiteFieldsNum += 1;
         }
-        if (WhiteFields.toString().contains("A8")) {
+        if (WhiteFieldsString.contains("A8")) {
             WhiteFieldsNum += 1;
         }
-        if (WhiteFields.toString().contains("H1")) {
+        if (WhiteFieldsString.contains("H1")) {
             WhiteFieldsNum += 1;
         }
-        if (WhiteFields.toString().contains("H8")) {
+        if (WhiteFieldsString.contains("H8")) {
             WhiteFieldsNum += 1;
         }
 
