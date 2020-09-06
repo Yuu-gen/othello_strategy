@@ -67,11 +67,11 @@ public class Node<DATATYPE> {
     }
 
     /**
-     * Returns the Lowest Layer of the Tree (the nodes without further children) in a flat List.
+     * Returns the Lowest Layer of the Tree (the nodes without further children) in a flat List.(recursiv)
      *
      * @return
      */
-    public List<Node<DATATYPE>> getLowestLayer() {
+    public List<Node<DATATYPE>> getLowestLayerrec() {
         final List<Node<DATATYPE>> outNodes = new ArrayList<>();
         final List<Node<DATATYPE>> children = this.getChildren();
 
@@ -84,6 +84,28 @@ public class Node<DATATYPE> {
                 outNodes.addAll(currNode.getLowestLayer());
             }
             return outNodes;
+        }
+    }
+
+    /**
+     * Returns the Lowest Layer of the Tree (the nodes without further children) in a flat List.
+     *
+     * @return
+     */
+    public List<Node<DATATYPE>> getLowestLayer() {
+        final List<Node<DATATYPE>> outNodes = new ArrayList<>();
+        List<Node<DATATYPE>> currentLayer = new ArrayList<>();
+        List<Node<DATATYPE>> nextLayer = new ArrayList<>();
+        currentLayer = this.getChildren();
+        while (true) {
+            for (final Node<DATATYPE> node : currentLayer) {
+                nextLayer.addAll(node.getChildren());
+                if (nextLayer.isEmpty()) {
+                    return currentLayer;
+                }
+            }
+            currentLayer = nextLayer;
+            nextLayer = new ArrayList<>();
         }
     }
 

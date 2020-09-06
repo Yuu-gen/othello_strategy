@@ -25,7 +25,6 @@ import java.util.Optional;
 
 import de.fhdw.gaming.core.domain.GameException;
 import de.fhdw.gaming.othello.core.domain.OthelloBoard;
-import de.fhdw.gaming.othello.core.domain.OthelloDirection;
 import de.fhdw.gaming.othello.core.domain.OthelloField;
 import de.fhdw.gaming.othello.core.domain.OthelloFieldState;
 import de.fhdw.gaming.othello.core.domain.OthelloPlayer;
@@ -209,16 +208,17 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
         for (int i = 0; i < activeFields.size(); i++) {
             this.workboard = field.getBoard().deepCopy();
             workfield = this.setup(this.workboard, usingBlackTokens).get(i);
-                                                                           
+
             workfield.placeToken(usingBlackTokens);
             rootpos.addChild(new Node<>(new FieldIntTuple(0, workfield)));
         }
 
         return rootpos;
     }
-    
-    private Node<FieldIntTuple> evaluateLowestLayer(Node<FieldIntTuple> rootnode){
-        rootnode.getLowestLayer().parallelStream().forEach(node -> node.getData().setValue(evaluateBoard(node.getData().getField().getBoard())));
+
+    private Node<FieldIntTuple> evaluateLowestLayer(final Node<FieldIntTuple> rootnode) {
+        rootnode.getLowestLayer().parallelStream()
+                .forEach(node -> node.getData().setValue(this.evaluateBoard(node.getData().getField().getBoard())));
         return rootnode;
     }
 
@@ -299,19 +299,20 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
         final boolean currentUsingBlackTokens = usingBlackTokens;
         final List<List<Node<FieldIntTuple>>> lNodes = rootnode.getOrganizedLowestLayer();
 
-      for (int i = 0; i < lNodes.size(); i++) {
-      if (lNodes.get(i).isEmpty()) {
-          continue;
-      }
+        for (int i = 0; i < lNodes.size(); i++) {
+            if (lNodes.get(i).isEmpty()) {
+                continue;
+            }
 
-      lNodes.get(i).get(0).getParent().
-      setData(new FieldIntTuple(this.compare(lNodes.get(i), currentUsingBlackTokens).getValue(),
-              lNodes.get(i).get(0).getParent().getData().getField()));
-      for (int j = 0; j < lNodes.get(i).size(); j++) {
-          lNodes.get(i).get(j).deleteNode();
-      }
-  }
-        
+            lNodes.get(i).get(0).getParent().setData(
+                    new FieldIntTuple(
+                            this.compare(lNodes.get(i), currentUsingBlackTokens).getValue(),
+                            lNodes.get(i).get(0).getParent().getData().getField()));
+            for (int j = 0; j < lNodes.get(i).size(); j++) {
+                lNodes.get(i).get(j).deleteNode();
+            }
+        }
+
 //        for (int i = 0; i < lNodes.size(); i++) {
 //            if (lNodes.get(i).isEmpty()) {
 //                continue;
@@ -397,7 +398,7 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
             final List<OthelloField> activeFields, final Integer depth) throws GameException {
         if (depth % 2 == 0) {
             return this.crushTree(
-                   this.evaluateLowestLayer(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth)),
+                    this.evaluateLowestLayer(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth)),
                     usingBlackTokens,
                     depth);
         } else {
