@@ -178,13 +178,33 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
      * @return
      * @throws GameException
      */
+//    private Node<FieldIntTuple> growTree(final OthelloField field, final boolean usingBlackTokens,
+//            final List<OthelloField> activeFields) throws GameException {
+//        final Node<FieldIntTuple> rootpos = new Node<>(new FieldIntTuple(0, field));
+//        OthelloField workfield = null;
+//        List<OthelloField> workactiveFields = null;
+//        if (activeFields.isEmpty()) {
+//            rootpos.addChild(new Node<>(new FieldIntTuple(this.evaluateBoard(field.getBoard()), field)));
+//        }
+//
+//        for (int i = 0; i < activeFields.size(); i++) {
+//            this.workboard = field.getBoard().deepCopy();
+//            workactiveFields = this.setup(this.workboard, usingBlackTokens);
+//            workfield = this.setup(this.workboard, usingBlackTokens).get(i);// the setup call could probably be replaced
+//                                                                            // with workactivefields
+//            workfield.placeToken(usingBlackTokens);
+//            rootpos.addChild(new Node<>(new FieldIntTuple(this.evaluateBoard(workfield.getBoard()), workfield)));
+//        }
+//
+//        return rootpos;
+//    }
     private Node<FieldIntTuple> growTree(final OthelloField field, final boolean usingBlackTokens,
             final List<OthelloField> activeFields) throws GameException {
         final Node<FieldIntTuple> rootpos = new Node<>(new FieldIntTuple(0, field));
         OthelloField workfield = null;
         List<OthelloField> workactiveFields = null;
         if (activeFields.isEmpty()) {
-            rootpos.addChild(new Node<>(new FieldIntTuple(this.evaluateBoard(field.getBoard()), field)));
+            rootpos.addChild(new Node<>(new FieldIntTuple(0, field)));
         }
 
         for (int i = 0; i < activeFields.size(); i++) {
@@ -193,10 +213,15 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
             workfield = this.setup(this.workboard, usingBlackTokens).get(i);// the setup call could probably be replaced
                                                                             // with workactivefields
             workfield.placeToken(usingBlackTokens);
-            rootpos.addChild(new Node<>(new FieldIntTuple(this.evaluateBoard(workfield.getBoard()), workfield)));
+            rootpos.addChild(new Node<>(new FieldIntTuple(0, workfield)));
         }
 
         return rootpos;
+    }
+    
+    private Node<FieldIntTuple> evaluateLowestLayer(Node<FieldIntTuple> rootnode){
+        rootnode.getLowestLayer().parallelStream().forEach(node -> node.getData().setValue(evaluateBoard(node.getData().getField().getBoard())));
+        return rootnode;
     }
 
     /**
@@ -374,12 +399,12 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
             final List<OthelloField> activeFields, final Integer depth) throws GameException {
         if (depth % 2 == 0) {
             return this.crushTree(
-                    this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth),
+                   this.evaluateLowestLayer(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth)),
                     usingBlackTokens,
                     depth);
         } else {
             return this.crushTree(
-                    this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth),
+                    this.evaluateLowestLayer(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth)),
                     !usingBlackTokens,
                     depth);
         }
