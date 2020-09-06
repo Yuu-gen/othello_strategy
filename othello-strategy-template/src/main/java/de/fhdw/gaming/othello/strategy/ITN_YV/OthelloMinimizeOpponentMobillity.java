@@ -122,8 +122,13 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
 //            e.printStackTrace();
 //        }
 
-        final FieldIntTuple besttuple = this
-                .crushTree(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, 4), usingBlackTokens, 4);
+        final FieldIntTuple besttuple = minmax(state, usingBlackTokens, activeFields,4);
+                
+                
+//                this
+//                .crushTree(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, 4), usingBlackTokens, 4);
+        
+        
 //        System.out.println(besttuple.getValue());
         final OthelloPosition bestposition = besttuple.getField().getPosition();
 //        final OthelloPosition bestposition = this.calculate(activeFields, usingBlackTokens, state);
@@ -297,8 +302,21 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
      * @return
      */
     private Integer evaluateBoard(final OthelloBoard board) {
-        return board.getFieldsBeing(OthelloFieldState.BLACK).size()
-                - board.getFieldsBeing(OthelloFieldState.WHITE).size();
+//        return setup(board, true).size()-setup(board, false).size(); //evaluation based on active Fields
+        
+        //evaluation based on number of Tokens:
+        
+        Integer BlackFields=board.getFieldsBeing(OthelloFieldState.BLACK).size();
+        Integer WhiteFields=board.getFieldsBeing(OthelloFieldState.WHITE).size();
+        if (BlackFields.equals(0)) {
+            return -64;
+        }
+        if (WhiteFields.equals(0)) {
+            return 64;
+        }
+        else {
+            return BlackFields-WhiteFields;
+        }
     }
 
     /**
@@ -407,6 +425,17 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
         }
 //        return currentrootnode.getLowestLayer();
         return this.compare(currentrootnode.getLowestLayer(), currentUsingBlackTokens);
+    }
+    
+    private FieldIntTuple minmax(OthelloState state, boolean usingBlackTokens, List<OthelloField> activeFields, Integer depth) throws GameException {
+        if (depth % 2 == 0) {
+            return this
+                    .crushTree(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth), usingBlackTokens, depth);
+        }
+        else {
+            return this
+                    .crushTree(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth), !usingBlackTokens, depth);
+        }
     }
 
 }
