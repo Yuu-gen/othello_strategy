@@ -25,7 +25,6 @@ import java.util.Optional;
 
 import de.fhdw.gaming.core.domain.GameException;
 import de.fhdw.gaming.othello.core.domain.OthelloBoard;
-import de.fhdw.gaming.othello.core.domain.OthelloDirection;
 import de.fhdw.gaming.othello.core.domain.OthelloField;
 import de.fhdw.gaming.othello.core.domain.OthelloFieldState;
 import de.fhdw.gaming.othello.core.domain.OthelloPlayer;
@@ -123,14 +122,12 @@ public final class OthelloMinOppMob implements OthelloStrategy {
 //        }
 
 //        final FieldIntTuple besttuple = minmax(state, usingBlackTokens, activeFields,4);
-                
-                
+
 //                this
 //                .crushTree(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, 4), usingBlackTokens, 4);
-        
-        
+
 //        System.out.println(besttuple.getValue());
-        final OthelloPosition bestposition = calculate(activeFields, usingBlackTokens, state);
+        final OthelloPosition bestposition = this.calculate(activeFields, usingBlackTokens, state);
 //        final OthelloPosition bestposition = this.calculate(activeFields, usingBlackTokens, state);
         return Optional.of(this.moveFactory.createPlaceTokenMove(usingBlackTokens, bestposition));
     }
@@ -138,19 +135,6 @@ public final class OthelloMinOppMob implements OthelloStrategy {
     @Override
     public String toString() {
         return OthelloMinOppMob.class.getSimpleName();
-    }
-
-    /**
-     * Determines if there is a neighbour field with the opponent's token in a given direction.
-     *
-     * @param field        The start field.
-     * @param direction    The direction to turn to.
-     * @param desiredState The expected state of the neighbour field.
-     * @return {@code true} if the neighbour field exists and has the expected state, else {@code false}.
-     */
-    private static boolean isOpponent(final OthelloField field, final OthelloDirection direction,
-            final OthelloFieldState desiredState) {
-        return field.hasNeighbour(direction) && field.getNeighbour(direction).getState().equals(desiredState);
     }
 
     /**
@@ -219,223 +203,6 @@ public final class OthelloMinOppMob implements OthelloStrategy {
             }
         }
         return bestField.getPosition();
-    }
-
-    /**
-     * Builds a one layer deep tree with the board you give it as root and all possible boards one move into the future
-     * as children.
-     *
-     * Dosen't understand skipmoves correctly , the current if else is just a temporary fix
-     *
-     * @param board
-     * @param usingBlackTokens
-     * @param activeFields
-     * @return
-     * @throws GameException
-     */
-    private Node<FieldIntTuple> growTree(final OthelloField field, final boolean usingBlackTokens,
-            final List<OthelloField> activeFields) throws GameException {
-        final Node<FieldIntTuple> rootpos = new Node<>(new FieldIntTuple(0, field));
-        OthelloField workfield = null;
-        List<OthelloField> workactiveFields = null;
-        if (activeFields.isEmpty()) {
-            rootpos.addChild(new Node<>(new FieldIntTuple(this.evaluateBoard(field.getBoard()), field)));
-        }
-
-        for (int i = 0; i < activeFields.size(); i++) {
-            this.workboard = field.getBoard().deepCopy();
-            workactiveFields = this.setup(this.workboard, usingBlackTokens);
-            workfield = this.setup(this.workboard, usingBlackTokens).get(i);// the setup call could probably be replaced
-                                                                            // with workactivefields
-            workfield.placeToken(usingBlackTokens);
-            rootpos.addChild(new Node<>(new FieldIntTuple(this.evaluateBoard(workfield.getBoard()), workfield)));
-        }
-
-        return rootpos;
-    }
-
-    /**
-     * Builds tree of a specified depth with the board you give it as root and all possible boards that could arise
-     * through legal moves within the specified depth as children.
-     *
-     * @param board            board to use as the root of the Tree
-     * @param usingBlackTokens if it is black to move in the root board
-     * @param activeFields     list of active fields in the root board
-     * @param depth            how far to look into the future
-     * @return
-     * @throws GameException
-     */
-    private Node<FieldIntTuple> buildTree(final OthelloBoard board, final boolean usingBlackTokens,
-            final List<OthelloField> activeFields, final Integer depth) throws GameException {
-        final Node<
-                FieldIntTuple> outTree = this.growTree(board.getFields().get(0).get(0), usingBlackTokens, activeFields);
-        boolean currentUsingBlackTokens = usingBlackTokens;
-        for (int i = 0; i < depth; i++) {
-            currentUsingBlackTokens = !currentUsingBlackTokens;
-            for (final Node<FieldIntTuple> node : outTree.getLowestLayer()) { // sadly i don't think i can replace this
-                                                                              // for loop
-                                                                              // with a parallel stream because it uses
-                                                                              // an outside
-                                                                              // variable that is not final. but perhaps
-                                                                              // this could
-                                                                              // be circumvented by having current using
-                                                                              // black tokens
-                                                                              // be a final list of alternating true and
-                                                                              // false booleans (as many as depth is)
-                node.addChildren(
-                        this.growTree(
-                                node.getData().getField(),
-                                currentUsingBlackTokens,
-                                this.setup(node.getData().getField().getBoard(), currentUsingBlackTokens))
-                                .getChildren());
-            }
-
-        }
-        return outTree;
-    }
-
-    /**
-     * Assigns an Integer Evaluation to a board. Values higher than 0 are good for black,lower values are good for
-     * white.
-     *
-     * @param board board to be evaluated
-     * @return
-     */
-    private Integer evaluateBoard(final OthelloBoard board) {
-//        return setup(board, true).size()-setup(board, false).size(); //evaluation based on active Fields
-        
-        //evaluation based on number of Tokens:
-        
-        Integer BlackFields=board.getFieldsBeing(OthelloFieldState.BLACK).size();
-        Integer WhiteFields=board.getFieldsBeing(OthelloFieldState.WHITE).size();
-        if (BlackFields.equals(0)) {
-            return -64;
-        }
-        if (WhiteFields.equals(0)) {
-            return 64;
-        }
-        else {
-            return BlackFields-WhiteFields;
-        }
-    }
-
-    /**
-     * Should remove the lowest layer and propagate its values up the tree acording to minmax. probably sometimes throws
-     * "index 0 out of range for length 0" because compare sometimes gets passed an empty List as group
-     *
-     * @param rootnode
-     * @param usingBlackTokens
-     * @return
-     * @throws Exception
-     */
-    private Node<FieldIntTuple> shrinkTree(final Node<FieldIntTuple> rootnode, final boolean usingBlackTokens) {
-        final boolean currentUsingBlackTokens = usingBlackTokens;
-        final List<List<Node<FieldIntTuple>>> lNodes = rootnode.getOrganizedLowestLayer();
-
-        for (int i = 0; i < lNodes.size(); i++) {
-            if (lNodes.get(i).isEmpty()) {
-                continue;
-                }
-
-            lNodes.get(i).get(0).getParent().
-            setData(new FieldIntTuple(this.compare(lNodes.get(i), currentUsingBlackTokens).getValue(),
-                    lNodes.get(i).get(0).getParent().getData().getField()));
-            for (int j = 0; j < lNodes.get(i).size(); j++) {
-                lNodes.get(i).get(j).deleteNode();
-                }
-            }
-
-
-//        for (int i = 0; i < lNodes.size(); i++) {
-//            if (lNodes.get(i).isEmpty()) {
-//                continue;
-//            }
-//
-//            lNodes.get(i).get(0).getParent().
-//            setData(new FieldIntTuple(this.compare(lNodes.get(i), currentUsingBlackTokens).getValue(),
-//                    lNodes.get(i).get(0).getParent().getData().getField()));
-//            for (int j = 0; j < lNodes.get(i).size(); j++) {
-//                lNodes.get(i).get(j).deleteNode();
-//            }
-//        }
-
-//        for (final List<Node<FieldIntTuple>> lNode : lNodes) {
-//            if (lNode.isEmpty()) {
-//                continue;
-//            }
-//
-//            lNode.get(0).getParent().setData(
-//                    new FieldIntTuple(
-//                            this.compare(lNode, currentUsingBlackTokens).getValue(),
-//                            lNode.get(0).getParent().getData().getField()));
-//            for (final Node<FieldIntTuple> element : lNodes.get(i)) {
-//                element.deleteNode();
-//            }
-//        }
-//        for (final List<Node<FieldIntTuple>> group : rootnode.getOrganizedLowestLayer()) {
-//            currentUsingBlackTokens = !currentUsingBlackTokens;
-//            group.get(0).getParent().setData(this.compare(group, currentUsingBlackTokens));
-//            for (final Node<FieldIntTuple> node : group) {
-//                node.deleteNode();
-//
-//            }
-////            group.parallelStream().forEach(s -> {
-////                s.deleteNode();
-////            });
-//        }
-        return rootnode;
-    }
-
-    /**
-     * Returns the minimum or the maximum value FieldIntTuple out of the List it is provided. minimum if
-     * usingBlackTokens is false maximum if usingBlackTokens is true
-     *
-     * @param group
-     * @param usingBlackTokens
-     * @return
-     * @throws Exception
-     */
-    private FieldIntTuple compare(final List<Node<FieldIntTuple>> group, final boolean usingBlackTokens) {
-        if (usingBlackTokens) {
-            return group.parallelStream().max((i, j) -> i.getData().getValue().compareTo(j.getData().getValue())).get()
-                    .getData();
-        } else {
-            return group.parallelStream().min((i, j) -> i.getData().getValue().compareTo(j.getData().getValue())).get()
-                    .getData();
-        }
-    }
-
-    /**
-     * Evaluates which move should be made according to minmax.
-     *
-     * @param rootnode
-     * @param usingBlackTokens
-     * @param depth
-     * @return
-     * @throws Exception
-     */
-    private FieldIntTuple crushTree(final Node<FieldIntTuple> rootnode, final boolean usingBlackTokens,
-            final Integer depth) {
-        boolean currentUsingBlackTokens = usingBlackTokens;
-        Node<FieldIntTuple> currentrootnode = rootnode;
-        for (int i = 0; i < depth; i++) {
-            currentrootnode = this.shrinkTree(currentrootnode, currentUsingBlackTokens);
-            currentUsingBlackTokens = !currentUsingBlackTokens;
-
-        }
-//        return currentrootnode.getLowestLayer();
-        return this.compare(currentrootnode.getLowestLayer(), currentUsingBlackTokens);
-    }
-    
-    private FieldIntTuple minmax(OthelloState state, boolean usingBlackTokens, List<OthelloField> activeFields, Integer depth) throws GameException {
-        if (depth % 2 == 0) {
-            return this
-                    .crushTree(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth), usingBlackTokens, depth);
-        }
-        else {
-            return this
-                    .crushTree(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth), !usingBlackTokens, depth);
-        }
     }
 
 }
