@@ -40,7 +40,7 @@ import de.fhdw.gaming.othello.core.moves.factory.OthelloMoveFactory;
  * <p>
  * TODO: Describe what it does.
  */
-public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
+public final class OthelloMinMaxStrategy implements OthelloStrategy {
 
     /**
      * The factory for creating Othello moves.
@@ -52,7 +52,7 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
      *
      * @param moveFactory The factory for creating Othello moves.
      */
-    OthelloMinimizeOpponentMobillity(final OthelloMoveFactory moveFactory) {
+    OthelloMinMaxStrategy(final OthelloMoveFactory moveFactory) {
         this.moveFactory = moveFactory;
     }
 
@@ -137,7 +137,7 @@ public final class OthelloMinimizeOpponentMobillity implements OthelloStrategy {
 
     @Override
     public String toString() {
-        return OthelloMinimizeOpponentMobillity.class.getSimpleName();
+        return OthelloMinMaxStrategy.class.getSimpleName();
     }
 
     /**

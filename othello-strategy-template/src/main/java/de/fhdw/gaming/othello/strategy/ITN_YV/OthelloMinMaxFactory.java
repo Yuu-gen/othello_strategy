@@ -23,14 +23,14 @@ import de.fhdw.gaming.othello.core.domain.factory.OthelloStrategyFactory;
 import de.fhdw.gaming.othello.core.moves.factory.OthelloMoveFactory;
 
 /**
- * Implements {@link OthelloStrategyFactory} by creating an {@link OthelloMinimizeOpponentMobillity}. An object of this class is
+ * Implements {@link OthelloStrategyFactory} by creating an {@link OthelloMinMaxStrategy}. An object of this class is
  * dynamically created by othello-core using Java's {@link java.util.ServiceLoader}. See especially
  * {@link de.fhdw.gaming.othello.core.domain.factory.OthelloDefaultStrategyFactoryProvider#getStrategyFactories()}.
  */
-public final class OthelloMyStrategyFactory implements OthelloStrategyFactory {
+public final class OthelloMinMaxFactory implements OthelloStrategyFactory {
 
     @Override
     public OthelloStrategy create(final OthelloMoveFactory moveFactory) {
-        return new OthelloMinimizeOpponentMobillity(moveFactory);
+        return new OthelloMinMaxStrategy(moveFactory);
     }
 }
