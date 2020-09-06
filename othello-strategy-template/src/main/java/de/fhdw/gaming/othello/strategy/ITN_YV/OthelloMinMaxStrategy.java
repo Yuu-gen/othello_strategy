@@ -334,20 +334,19 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
         final boolean currentUsingBlackTokens = usingBlackTokens;
         final List<List<Node<FieldIntTuple>>> lNodes = rootnode.getOrganizedLowestLayer();
 
-        for (final List<Node<FieldIntTuple>> lNode : lNodes) {
-            if (lNode.isEmpty()) {
-                continue;
-            }
+      for (int i = 0; i < lNodes.size(); i++) {
+      if (lNodes.get(i).isEmpty()) {
+          continue;
+      }
 
-            lNode.get(0).getParent().setData(
-                    new FieldIntTuple(
-                            this.compare(lNode, currentUsingBlackTokens).getValue(),
-                            lNode.get(0).getParent().getData().getField()));
-            for (final Node<FieldIntTuple> element : lNodes.get(i)) {
-                element.deleteNode();
-            }
-        }
-
+      lNodes.get(i).get(0).getParent().
+      setData(new FieldIntTuple(this.compare(lNodes.get(i), currentUsingBlackTokens).getValue(),
+              lNodes.get(i).get(0).getParent().getData().getField()));
+      for (int j = 0; j < lNodes.get(i).size(); j++) {
+          lNodes.get(i).get(j).deleteNode();
+      }
+  }
+        
 //        for (int i = 0; i < lNodes.size(); i++) {
 //            if (lNodes.get(i).isEmpty()) {
 //                continue;
