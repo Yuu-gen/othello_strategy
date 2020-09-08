@@ -27,6 +27,15 @@ import de.fhdw.gaming.core.ui.InputProvider;
  */
 public interface OthelloGameBuilderFactory extends GameBuilderFactory {
 
+    /**
+     * Parameter for the number of rows (and columns) of the board.
+     */
+    String PARAM_BOARD_SIZE = "boardSize";
+    /**
+     * Parameter that determines if a player is using black or white tokens.
+     */
+    String PARAM_PLAYER_USING_BLACK_TOKENS = "playerUsingBlackTokens";
+
     @Override
     OthelloGameBuilder createGameBuilder(InputProvider inputProvider) throws GameException;
 }

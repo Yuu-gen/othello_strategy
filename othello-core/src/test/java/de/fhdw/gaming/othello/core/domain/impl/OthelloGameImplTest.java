@@ -19,9 +19,11 @@
 package de.fhdw.gaming.othello.core.domain.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +38,7 @@ import de.fhdw.gaming.core.domain.PlayerState;
 import de.fhdw.gaming.core.ui.InputProviderException;
 import de.fhdw.gaming.core.ui.util.ChainedInputProvider;
 import de.fhdw.gaming.core.ui.util.NonInteractiveInputProvider;
+import de.fhdw.gaming.othello.core.domain.OthelloBoard;
 import de.fhdw.gaming.othello.core.domain.OthelloField;
 import de.fhdw.gaming.othello.core.domain.OthelloFieldState;
 import de.fhdw.gaming.othello.core.domain.OthelloGame;
@@ -294,6 +297,72 @@ class OthelloGameImplTest {
     }
 
     /**
+     * Tests that a random move is chosen for an overdue strategy.
+     */
+    @Test
+    void testOverdueStrategy() throws GameException, InterruptedException {
+        final OthelloGameBuilder gameBuilder = new OthelloGameBuilderImpl().changeBoardSize(4);
+        final OthelloPlayerBuilder blackPlayerBuilder = gameBuilder.createPlayerBuilder()
+                .changeName(OthelloGameImplTest.BLACK_PLAYER_NAME).changeUsingBlackTokens(true);
+        final OthelloPlayerBuilder whitePlayerBuilder = gameBuilder.createPlayerBuilder()
+                .changeName(OthelloGameImplTest.WHITE_PLAYER_NAME).changeUsingBlackTokens(false);
+        gameBuilder.addPlayerBuilder(blackPlayerBuilder, new OverdueStrategy());
+        gameBuilder.addPlayerBuilder(whitePlayerBuilder, new OverdueStrategy());
+        gameBuilder.changeMaximumComputationTimePerMove(1); // at most one second per move
+
+        try (OthelloGame game = gameBuilder.build(1)) {
+            game.start();
+            game.makeMove();
+
+            final Map<String, OthelloPlayer> players = game.getPlayers();
+            final OthelloPlayer blackPlayer = players.get(OthelloGameImplTest.BLACK_PLAYER_NAME);
+            final OthelloPlayer whitePlayer = players.get(OthelloGameImplTest.WHITE_PLAYER_NAME);
+
+            assertThat(game.isFinished(), is(equalTo(false)));
+            assertThat(blackPlayer.getState(), is(equalTo(PlayerState.PLAYING)));
+            assertThat(whitePlayer.getState(), is(equalTo(PlayerState.PLAYING)));
+
+            final OthelloBoard board = game.getState().getBoard();
+            final List<OthelloFieldState> relevantStates = Arrays.asList(
+                    board.getFieldAt(OthelloPosition.of(0, 1)).getState(),
+                    board.getFieldAt(OthelloPosition.of(1, 0)).getState(),
+                    board.getFieldAt(OthelloPosition.of(2, 3)).getState(),
+                    board.getFieldAt(OthelloPosition.of(3, 2)).getState());
+            assertThat(
+                    relevantStates,
+                    anyOf(
+                            is(
+                                    equalTo(
+                                            Arrays.asList(
+                                                    OthelloFieldState.BLACK,
+                                                    OthelloFieldState.EMPTY,
+                                                    OthelloFieldState.EMPTY,
+                                                    OthelloFieldState.EMPTY))),
+                            is(
+                                    equalTo(
+                                            Arrays.asList(
+                                                    OthelloFieldState.EMPTY,
+                                                    OthelloFieldState.BLACK,
+                                                    OthelloFieldState.EMPTY,
+                                                    OthelloFieldState.EMPTY))),
+                            is(
+                                    equalTo(
+                                            Arrays.asList(
+                                                    OthelloFieldState.EMPTY,
+                                                    OthelloFieldState.EMPTY,
+                                                    OthelloFieldState.BLACK,
+                                                    OthelloFieldState.EMPTY))),
+                            is(
+                                    equalTo(
+                                            Arrays.asList(
+                                                    OthelloFieldState.EMPTY,
+                                                    OthelloFieldState.EMPTY,
+                                                    OthelloFieldState.EMPTY,
+                                                    OthelloFieldState.BLACK)))));
+        }
+    }
+
+    /**
      * Places a token on a field.
      *
      * @param row     The row.
@@ -435,6 +504,25 @@ class OthelloGameImplTest {
                     }
                 }
             });
+        }
+    }
+
+    /**
+     * An overdue strategy.
+     */
+    private final class OverdueStrategy implements OthelloStrategy {
+
+        @Override
+        public String toString() {
+            return "OverdueStrategy";
+        }
+
+        @Override
+        public Optional<OthelloMove> computeNextMove(final int gameId, final OthelloPlayer player,
+                final OthelloState state) throws GameException, InterruptedException {
+
+            Thread.sleep(10_000);
+            return Optional.empty();
         }
     }
 }

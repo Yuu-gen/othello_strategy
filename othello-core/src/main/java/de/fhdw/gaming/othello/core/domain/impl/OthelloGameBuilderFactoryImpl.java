@@ -52,19 +52,6 @@ import de.fhdw.gaming.othello.core.moves.impl.OthelloDefaultMoveFactory;
 public final class OthelloGameBuilderFactoryImpl implements OthelloGameBuilderFactory {
 
     /**
-     * Parameter for the number of rows (and columns) of the board.
-     */
-    static final String PARAM_BOARD_SIZE = "boardSize";
-    /**
-     * Parameter for the maximum computation time per move in seconds.
-     */
-    static final String PARAM_MAX_COMPUTATION_TIME_PER_MOVE = "maxComputationTimePerMove";
-    /**
-     * Parameter that determines if a player is using black or white tokens.
-     */
-    static final String PARAM_PLAYER_USING_BLACK_TOKENS = "playerUsingBlackTokens";
-
-    /**
      * The number of players.
      */
     private static final int NUMBER_OF_PLAYERS = 2;

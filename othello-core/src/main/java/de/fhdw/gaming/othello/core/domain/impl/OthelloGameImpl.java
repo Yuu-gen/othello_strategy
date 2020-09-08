@@ -18,16 +18,24 @@
  */
 package de.fhdw.gaming.othello.core.domain.impl;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 import de.fhdw.gaming.core.domain.DefaultGame;
 import de.fhdw.gaming.core.domain.ObserverFactoryProvider;
+import de.fhdw.gaming.othello.core.domain.OthelloField;
+import de.fhdw.gaming.othello.core.domain.OthelloFieldState;
 import de.fhdw.gaming.othello.core.domain.OthelloGame;
 import de.fhdw.gaming.othello.core.domain.OthelloMoveChecker;
 import de.fhdw.gaming.othello.core.domain.OthelloPlayer;
 import de.fhdw.gaming.othello.core.domain.OthelloState;
 import de.fhdw.gaming.othello.core.domain.OthelloStrategy;
 import de.fhdw.gaming.othello.core.moves.OthelloMove;
+import de.fhdw.gaming.othello.core.moves.factory.OthelloMoveFactory;
+import de.fhdw.gaming.othello.core.moves.impl.OthelloDefaultMoveFactory;
 
 /**
  * Implements the Othello game.
@@ -39,6 +47,10 @@ final class OthelloGameImpl extends DefaultGame<OthelloPlayer, OthelloState, Oth
      * The number of rows (and columns) of the board.
      */
     private final int boardSize;
+    /**
+     * The move factory.
+     */
+    private final OthelloMoveFactory moveFactory;
 
     /**
      * Creates an Othello game.
@@ -59,6 +71,22 @@ final class OthelloGameImpl extends DefaultGame<OthelloPlayer, OthelloState, Oth
 
         super(id, initialState, strategies, maxComputationTimePerMove, moveChecker, observerFactoryProvider);
         this.boardSize = initialState.getBoard().getSize();
+        this.moveFactory = new OthelloDefaultMoveFactory();
+    }
+
+    @Override
+    public Optional<OthelloMove> chooseRandomMove(final OthelloPlayer player, final OthelloState state) {
+        final boolean usingBlackTokens = player.isUsingBlackTokens();
+        final List<OthelloField> fields = state.getBoard().getFieldsBeing(OthelloFieldState.EMPTY).values().stream()
+                .filter((final OthelloField field) -> field.isActive(usingBlackTokens)).collect(Collectors.toList());
+
+        if (fields.isEmpty()) {
+            return Optional.of(this.moveFactory.createSkipMove(usingBlackTokens));
+        } else {
+            final int index = new Random().nextInt(fields.size());
+            final OthelloField field = fields.get(index);
+            return Optional.of(this.moveFactory.createPlaceTokenMove(usingBlackTokens, field.getPosition()));
+        }
     }
 
     @Override
