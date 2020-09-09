@@ -263,12 +263,12 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
         Integer WhiteFieldsNum = WhiteFields.size();
 
         for (final OthelloPosition BlackPosition : BlackFields.keySet()) {
-            if (this.testStable(board.getFieldAt(BlackPosition))) {
+            if (this.isFieldStable(board.getFieldAt(BlackPosition))) {
                 BlackFieldsNum += 3;
             }
         }
         for (final OthelloPosition WhitePosition : WhiteFields.keySet()) {
-            if (this.testStable(board.getFieldAt(WhitePosition))) {
+            if (this.isFieldStable(board.getFieldAt(WhitePosition))) {
                 WhiteFieldsNum += 3;
             }
         }
@@ -442,7 +442,7 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
         }
     }
 
-    private boolean testStable(final OthelloField field) {
+    private boolean isFieldStable(final OthelloField field) {
         final List<OthelloDirection> opposingSides = new ArrayList<>();
         OthelloField workfield = field;
         for (final OthelloDirection direction : OthelloDirection.values()) {
