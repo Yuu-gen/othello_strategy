@@ -25,6 +25,7 @@ import java.util.Optional;
 
 import de.fhdw.gaming.core.domain.GameException;
 import de.fhdw.gaming.othello.core.domain.OthelloBoard;
+import de.fhdw.gaming.othello.core.domain.OthelloDirection;
 import de.fhdw.gaming.othello.core.domain.OthelloField;
 import de.fhdw.gaming.othello.core.domain.OthelloFieldState;
 import de.fhdw.gaming.othello.core.domain.OthelloPlayer;
@@ -58,7 +59,7 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
     /**
      *
      */
-    private final Integer DEPTHOFTREE = 4;
+    private final Integer DEPTHOFTREE = 3;
 
     /**
      * place to put the state before modifying it for computations.
@@ -260,45 +261,62 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
         final Map<OthelloPosition, ? extends OthelloField> WhiteFields = board.getFieldsBeing(OthelloFieldState.WHITE);
         Integer BlackFieldsNum = BlackFields.size();
         Integer WhiteFieldsNum = WhiteFields.size();
-        final String BlackFieldsString = BlackFields.toString();
-        final String WhiteFieldsString = WhiteFields.toString();
 
-        // The following If Hell is stupid.But I was to stupid to find anything better
-        // it would probably be better to test for unflippable fields with an additional method
-        if (BlackFieldsString.contains("A1")) {
-            BlackFieldsNum += 1;
+        for (final OthelloPosition BlackPosition : BlackFields.keySet()) {
+            if (this.testStable(board.getFieldAt(BlackPosition))) {
+                BlackFieldsNum += 3;
+            }
         }
-        if (BlackFieldsString.contains("A8")) {
-            BlackFieldsNum += 1;
+        for (final OthelloPosition WhitePosition : WhiteFields.keySet()) {
+            if (this.testStable(board.getFieldAt(WhitePosition))) {
+                WhiteFieldsNum += 3;
+            }
         }
-        if (BlackFieldsString.contains("H1")) {
-            BlackFieldsNum += 1;
-        }
-        if (BlackFieldsString.contains("H8")) {
-            BlackFieldsNum += 1;
-        }
-
-        if (WhiteFieldsString.contains("A1")) {
-            WhiteFieldsNum += 1;
-        }
-        if (WhiteFieldsString.contains("A8")) {
-            WhiteFieldsNum += 1;
-        }
-        if (WhiteFieldsString.contains("H1")) {
-            WhiteFieldsNum += 1;
-        }
-        if (WhiteFieldsString.contains("H8")) {
-            WhiteFieldsNum += 1;
-        }
-
         if (BlackFieldsNum.equals(0)) {
-            return -68;
+            return -1000;
         }
         if (WhiteFieldsNum.equals(0)) {
-            return 68;
+            return 1000;
         } else {
             return BlackFieldsNum - WhiteFieldsNum;
         }
+
+//        // The following If Hell is stupid.But I was to stupid to find anything better
+//        // it would probably be better to test for unflippable fields with an additional method
+//        if (BlackFieldsString.contains("A1")) {
+//            BlackFieldsNum += 2;
+//        }
+//        if (BlackFieldsString.contains("A8")) {
+//            BlackFieldsNum += 2;
+//        }
+//        if (BlackFieldsString.contains("H1")) {
+//            BlackFieldsNum += 2;
+//        }
+//        if (BlackFieldsString.contains("H8")) {
+//            BlackFieldsNum += 2;
+//        }
+//
+//        if (WhiteFieldsString.contains("A1")) {
+//            WhiteFieldsNum += 1;
+//        }
+//        if (WhiteFieldsString.contains("A8")) {
+//            WhiteFieldsNum += 1;
+//        }
+//        if (WhiteFieldsString.contains("H1")) {
+//            WhiteFieldsNum += 1;
+//        }
+//        if (WhiteFieldsString.contains("H8")) {
+//            WhiteFieldsNum += 1;
+//        }
+//
+//        if (BlackFieldsNum.equals(0)) {
+//            return -100;
+//        }
+//        if (WhiteFieldsNum.equals(0)) {
+//            return 100;
+//        } else {
+//            return BlackFieldsNum - WhiteFieldsNum;
+//        }
     }
 
     /**
@@ -422,6 +440,55 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
                     !usingBlackTokens,
                     depth);
         }
+    }
+
+    private boolean testStable(final OthelloField field) {
+        final List<OthelloDirection> opposingSides = new ArrayList<>();
+        OthelloField workfield = field;
+        for (final OthelloDirection direction : OthelloDirection.values()) {
+            if (workfield.hasNeighbour(direction)) {
+                if (!workfield.getNeighbour(direction).getState().equals(field.getState())) {
+                    switch (direction) {
+                    case NORTH:
+                        opposingSides.add(OthelloDirection.SOUTH);
+                        break;
+                    case NORTHEAST:
+                        opposingSides.add(OthelloDirection.SOUTHWEST);
+                        break;
+                    case EAST:
+                        opposingSides.add(OthelloDirection.WEST);
+                        break;
+                    case SOUTHEAST:
+                        opposingSides.add(OthelloDirection.NORTHWEST);
+                        break;
+                    case SOUTH:
+                        opposingSides.add(OthelloDirection.NORTH);
+                        break;
+                    case SOUTHWEST:
+                        opposingSides.add(OthelloDirection.NORTHEAST);
+                        break;
+                    case WEST:
+                        opposingSides.add(OthelloDirection.EAST);
+                        break;
+                    case NORTHWEST:
+                        opposingSides.add(OthelloDirection.SOUTHEAST);
+                        break;
+                    }
+                }
+            }
+
+        }
+        for (final OthelloDirection othelloDirection : opposingSides) {
+            while (workfield.hasNeighbour(othelloDirection)) {
+                if (workfield.getNeighbour(othelloDirection).getState().equals(workfield.getState())) {
+                    workfield = workfield.getNeighbour(othelloDirection);
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
 }
