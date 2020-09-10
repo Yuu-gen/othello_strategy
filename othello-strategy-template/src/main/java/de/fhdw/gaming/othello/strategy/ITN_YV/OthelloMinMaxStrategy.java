@@ -66,10 +66,17 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
      */
     private OthelloBoard workboard = null;
 
+    private Integer Temperature = 32;
+    private Integer StableWorth = 7;
+
     @Override
     public Optional<OthelloMove> computeNextMove(final int gameId, final OthelloPlayer player, final OthelloState state)
             throws GameException {
 
+        if (this.Temperature < 10) {
+            this.StableWorth = 2;
+        }
+        this.Temperature -= 1;
         this.workboard = state.getBoard().deepCopy();
         final boolean usingBlackTokens = player.isUsingBlackTokens();
 
@@ -133,6 +140,8 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
 //                .crushTree(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, 4), usingBlackTokens, 4);
 
 //        System.out.println(besttuple.getValue());
+//        System.out.println(this.Temperature);
+
         final OthelloPosition bestposition = besttuple.getField().getPosition();
 //        final OthelloPosition bestposition = this.calculate(activeFields, usingBlackTokens, state);
         return Optional.of(this.moveFactory.createPlaceTokenMove(usingBlackTokens, bestposition));
@@ -264,12 +273,12 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
 
         for (final OthelloPosition BlackPosition : BlackFields.keySet()) {
             if (this.isFieldStable(board.getFieldAt(BlackPosition))) {
-                BlackFieldsNum += 3;
+                BlackFieldsNum += this.StableWorth;
             }
         }
         for (final OthelloPosition WhitePosition : WhiteFields.keySet()) {
             if (this.isFieldStable(board.getFieldAt(WhitePosition))) {
-                WhiteFieldsNum += 3;
+                WhiteFieldsNum += this.StableWorth;
             }
         }
         if (BlackFieldsNum.equals(0)) {
