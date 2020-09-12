@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import de.fhdw.gaming.core.domain.GameException;
 import de.fhdw.gaming.othello.core.domain.OthelloBoard;
@@ -67,7 +68,8 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
     private OthelloBoard workboard = null;
 
     private Integer Temperature = 32;
-    private Integer StableWorth = 7;
+    private Integer StableWorth = 7;// pev was 7
+    private boolean ActiveFieldEvaluation = true;
 
     @Override
     public Optional<OthelloMove> computeNextMove(final int gameId, final OthelloPlayer player, final OthelloState state)
@@ -75,6 +77,9 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
 
         if (this.Temperature < 10) {
             this.StableWorth = 2;
+        }
+        if (this.Temperature < 24) {
+            this.ActiveFieldEvaluation = false;
         }
         this.Temperature -= 1;
         this.workboard = state.getBoard().deepCopy();
@@ -266,17 +271,25 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
 
         // evaluation based on number of Tokens:
 
-        final Map<OthelloPosition, ? extends OthelloField> BlackFields = board.getFieldsBeing(OthelloFieldState.BLACK);
-        final Map<OthelloPosition, ? extends OthelloField> WhiteFields = board.getFieldsBeing(OthelloFieldState.WHITE);
-        Integer BlackFieldsNum = BlackFields.size();
-        Integer WhiteFieldsNum = WhiteFields.size();
+        Integer BlackFieldsNum = null;
+        Integer WhiteFieldsNum = null;
 
-        for (final OthelloPosition BlackPosition : BlackFields.keySet()) {
+        final Set<OthelloPosition> BlackFields = board.getFieldsBeing(OthelloFieldState.BLACK).keySet();
+        final Set<OthelloPosition> WhiteFields = board.getFieldsBeing(OthelloFieldState.WHITE).keySet();
+        if (this.ActiveFieldEvaluation) {
+            BlackFieldsNum = this.setup(board, true).size();
+            WhiteFieldsNum = this.setup(board, false).size();
+        } else {
+            BlackFieldsNum = BlackFields.size();
+            WhiteFieldsNum = WhiteFields.size();
+        }
+
+        for (final OthelloPosition BlackPosition : BlackFields) {
             if (this.isFieldStable(board.getFieldAt(BlackPosition))) {
                 BlackFieldsNum += this.StableWorth;
             }
         }
-        for (final OthelloPosition WhitePosition : WhiteFields.keySet()) {
+        for (final OthelloPosition WhitePosition : WhiteFields) {
             if (this.isFieldStable(board.getFieldAt(WhitePosition))) {
                 WhiteFieldsNum += this.StableWorth;
             }
