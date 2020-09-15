@@ -473,23 +473,23 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
     private FieldIntTuple minmax(final OthelloState state, final boolean usingBlackTokens,
             final List<OthelloField> activeFields, final Integer depth) throws GameException {
 
-//        return this.reccruschTree(
-//                this.evaluateLowestLayer(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth)),
-//                usingBlackTokens,
-//                depth + 1,
-//                -100000,
-//                100000);
-        if (depth % 2 == 0) {
-            return this.crushTree(
-                    this.evaluateLowestLayer(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth)),
-                    usingBlackTokens,
-                    depth);
-        } else {
-            return this.crushTree(
-                    this.evaluateLowestLayer(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth)),
-                    !usingBlackTokens,
-                    depth);
-        }
+        return this.reccruschTree(
+                this.evaluateLowestLayer(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth)),
+                usingBlackTokens,
+                depth + 1,
+                -100000,
+                100000);
+//        if (depth % 2 == 0) {
+//            return this.crushTree(
+//                    this.evaluateLowestLayer(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth)),
+//                    usingBlackTokens,
+//                    depth);
+//        } else {
+//            return this.crushTree(
+//                    this.evaluateLowestLayer(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth)),
+//                    !usingBlackTokens,
+//                    depth);
+//        }
     }
 
     private boolean isFieldStable(final OthelloField field) {
@@ -554,7 +554,7 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
             for (final Node<FieldIntTuple> child : rootnode.getChildren()) {
                 final FieldIntTuple currEval = new FieldIntTuple(0, child.getData().getField());
                 currEval.setValue(this.reccruschTree(child, false, depth - 1, localAlpha, localBeta).getValue());
-                if (bestNode.getValue() > currEval.getValue()) {
+                if (bestNode.getValue() >= currEval.getValue()) {
                     bestNode = bestNode;
                 } else {
                     bestNode = currEval;
@@ -572,7 +572,7 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
                 final FieldIntTuple currEval = new FieldIntTuple(0, child.getData().getField());
                 currEval.setValue(this.reccruschTree(child, true, depth - 1, localAlpha, localBeta).getValue());
 
-                if (bestNode.getValue() < currEval.getValue()) {
+                if (bestNode.getValue() <= currEval.getValue()) {
                     bestNode = bestNode;
                 } else {
                     bestNode = currEval;
