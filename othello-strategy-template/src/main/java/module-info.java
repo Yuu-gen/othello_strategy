@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License along with othello-strategy-template. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
 module de.fhdw.gaming.othello.strategy.template {
     requires de.fhdw.gaming.core;
     requires de.fhdw.gaming.othello.core;

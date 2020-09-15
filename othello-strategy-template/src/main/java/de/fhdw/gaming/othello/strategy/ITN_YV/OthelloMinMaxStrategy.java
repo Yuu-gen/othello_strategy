@@ -68,17 +68,21 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
     private OthelloBoard workboard = null;
 
     private Integer Temperature = 32;
-    private Integer StableWorth = 7;// pev was 7
+    private Integer StableWorth = 7;
     private boolean ActiveFieldEvaluation = true;
+    private final Integer badFieldPenalty = 0;
+
+    // define a method to actually find winning positions
+    // penalize putting tokens on the fields around the corners in the fist moves
 
     @Override
     public Optional<OthelloMove> computeNextMove(final int gameId, final OthelloPlayer player, final OthelloState state)
             throws GameException {
 
         if (this.Temperature < 10) {
-            this.StableWorth = 2;
+            this.StableWorth = 3;
         }
-        if (this.Temperature < 24) {
+        if (this.Temperature < 23) {
             this.ActiveFieldEvaluation = false;
         }
         this.Temperature -= 1;
@@ -139,7 +143,11 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
 //            e.printStackTrace();
 //        }
 
+//        final long startTime = System.nanoTime();
         final FieldIntTuple besttuple = this.minmax(state, usingBlackTokens, activeFields, this.DEPTHOFTREE);
+//        final long endTime = System.nanoTime();
+//        final long duration = (endTime - startTime);
+//        System.out.println(duration / 1000000000);// division to get Seconds
 
 //                this
 //                .crushTree(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, 4), usingBlackTokens, 4);
@@ -266,79 +274,130 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
      * @return
      */
     private Integer evaluateBoard(final OthelloBoard board) {
-        // evaluation based on active Fields:
-//        return setup(board, true).size()-setup(board, false).size();
 
-        // evaluation based on number of Tokens:
-
+        Integer BlackActiveFieldsNum = null;
         Integer BlackFieldsNum = null;
+
+        Integer WhiteActiveFieldsNum = null;
         Integer WhiteFieldsNum = null;
+
+        Integer EvalNum = null;
 
         final Set<OthelloPosition> BlackFields = board.getFieldsBeing(OthelloFieldState.BLACK).keySet();
         final Set<OthelloPosition> WhiteFields = board.getFieldsBeing(OthelloFieldState.WHITE).keySet();
+
+        BlackFieldsNum = BlackFields.size();
+        WhiteFieldsNum = WhiteFields.size();
+
+        BlackActiveFieldsNum = this.setup(board, true).size();
+        WhiteActiveFieldsNum = this.setup(board, false).size();
+
         if (this.ActiveFieldEvaluation) {
-            BlackFieldsNum = this.setup(board, true).size();
-            WhiteFieldsNum = this.setup(board, false).size();
+
+//            if (BlackFields.contains(OthelloPosition.of(0, 1))) {
+//                BlackActiveFieldsNum -= this.badFieldPenalty;
+//            }
+//            if (BlackFields.contains(OthelloPosition.of(1, 0))) {
+//                BlackActiveFieldsNum -= this.badFieldPenalty;
+//            }
+//            if (BlackFields.contains(OthelloPosition.of(1, 1))) {
+//                BlackActiveFieldsNum -= this.badFieldPenalty;
+//            }
+//            if (BlackFields.contains(OthelloPosition.of(0, 7))) {
+//                BlackActiveFieldsNum -= this.badFieldPenalty;
+//            }
+//            if (BlackFields.contains(OthelloPosition.of(1, 7))) {
+//                BlackActiveFieldsNum -= this.badFieldPenalty;
+//            }
+//            if (BlackFields.contains(OthelloPosition.of(1, 8))) {
+//                BlackActiveFieldsNum -= this.badFieldPenalty;
+//            }
+//            if (BlackFields.contains(OthelloPosition.of(7, 7))) {
+//                BlackActiveFieldsNum -= this.badFieldPenalty;
+//            }
+//            if (BlackFields.contains(OthelloPosition.of(7, 8))) {
+//                BlackActiveFieldsNum -= this.badFieldPenalty;
+//            }
+//            if (BlackFields.contains(OthelloPosition.of(8, 7))) {
+//                BlackActiveFieldsNum -= this.badFieldPenalty;
+//            }
+//            if (BlackFields.contains(OthelloPosition.of(7, 0))) {
+//                BlackActiveFieldsNum -= this.badFieldPenalty;
+//            }
+//            if (BlackFields.contains(OthelloPosition.of(7, 1))) {
+//                BlackActiveFieldsNum -= this.badFieldPenalty;
+//            }
+//            if (BlackFields.contains(OthelloPosition.of(8, 1))) {
+//                BlackActiveFieldsNum -= this.badFieldPenalty;
+//            }
+//
+//            if (WhiteFields.contains(OthelloPosition.of(0, 1))) {
+//                WhiteActiveFieldsNum -= this.badFieldPenalty;
+//            }
+//            if (WhiteFields.contains(OthelloPosition.of(1, 0))) {
+//                WhiteActiveFieldsNum -= this.badFieldPenalty;
+//            }
+//            if (WhiteFields.contains(OthelloPosition.of(1, 1))) {
+//                WhiteActiveFieldsNum -= this.badFieldPenalty;
+//            }
+//            if (WhiteFields.contains(OthelloPosition.of(0, 7))) {
+//                WhiteActiveFieldsNum -= this.badFieldPenalty;
+//            }
+//            if (WhiteFields.contains(OthelloPosition.of(1, 7))) {
+//                WhiteActiveFieldsNum -= this.badFieldPenalty;
+//            }
+//            if (WhiteFields.contains(OthelloPosition.of(1, 8))) {
+//                WhiteActiveFieldsNum -= this.badFieldPenalty;
+//            }
+//            if (WhiteFields.contains(OthelloPosition.of(7, 7))) {
+//                WhiteActiveFieldsNum -= this.badFieldPenalty;
+//            }
+//            if (WhiteFields.contains(OthelloPosition.of(7, 8))) {
+//                WhiteActiveFieldsNum -= this.badFieldPenalty;
+//            }
+//            if (WhiteFields.contains(OthelloPosition.of(8, 7))) {
+//                WhiteActiveFieldsNum -= this.badFieldPenalty;
+//            }
+//            if (WhiteFields.contains(OthelloPosition.of(7, 0))) {
+//                WhiteActiveFieldsNum -= this.badFieldPenalty;
+//            }
+//            if (WhiteFields.contains(OthelloPosition.of(7, 1))) {
+//                WhiteActiveFieldsNum -= this.badFieldPenalty;
+//            }
+//            if (WhiteFields.contains(OthelloPosition.of(8, 1))) {
+//                WhiteActiveFieldsNum -= this.badFieldPenalty;
+//            }
+
+            EvalNum = BlackActiveFieldsNum - WhiteActiveFieldsNum;
+
         } else {
-            BlackFieldsNum = BlackFields.size();
-            WhiteFieldsNum = WhiteFields.size();
+            EvalNum = BlackFieldsNum - WhiteFieldsNum;
         }
 
         for (final OthelloPosition BlackPosition : BlackFields) {
             if (this.isFieldStable(board.getFieldAt(BlackPosition))) {
-                BlackFieldsNum += this.StableWorth;
+                EvalNum += this.StableWorth;
             }
         }
         for (final OthelloPosition WhitePosition : WhiteFields) {
             if (this.isFieldStable(board.getFieldAt(WhitePosition))) {
-                WhiteFieldsNum += this.StableWorth;
+                EvalNum -= this.StableWorth;
             }
         }
-        if (BlackFieldsNum.equals(0)) {
-            return -1000;
+//        if (BlackActiveFieldsNum.equals(0)) {
+//            return -1000;
+//        }
+//        if (WhiteActiveFieldsNum.equals(0)) {
+//            return 1000;
+        if (this.isWinning(true, BlackActiveFieldsNum, WhiteActiveFieldsNum, BlackFieldsNum, WhiteFieldsNum)) {
+            return 1000000;
         }
-        if (WhiteFieldsNum.equals(0)) {
-            return 1000;
+        if (this.isWinning(false, BlackActiveFieldsNum, WhiteActiveFieldsNum, BlackFieldsNum, WhiteFieldsNum)) {
+            return -1000000;
         } else {
-            return BlackFieldsNum - WhiteFieldsNum;
+            return EvalNum;
         }
 
-//        // The following If Hell is stupid.But I was to stupid to find anything better
-//        // it would probably be better to test for unflippable fields with an additional method
-//        if (BlackFieldsString.contains("A1")) {
-//            BlackFieldsNum += 2;
-//        }
-//        if (BlackFieldsString.contains("A8")) {
-//            BlackFieldsNum += 2;
-//        }
-//        if (BlackFieldsString.contains("H1")) {
-//            BlackFieldsNum += 2;
-//        }
-//        if (BlackFieldsString.contains("H8")) {
-//            BlackFieldsNum += 2;
-//        }
-//
-//        if (WhiteFieldsString.contains("A1")) {
-//            WhiteFieldsNum += 1;
-//        }
-//        if (WhiteFieldsString.contains("A8")) {
-//            WhiteFieldsNum += 1;
-//        }
-//        if (WhiteFieldsString.contains("H1")) {
-//            WhiteFieldsNum += 1;
-//        }
-//        if (WhiteFieldsString.contains("H8")) {
-//            WhiteFieldsNum += 1;
-//        }
-//
-//        if (BlackFieldsNum.equals(0)) {
-//            return -100;
-//        }
-//        if (WhiteFieldsNum.equals(0)) {
-//            return 100;
-//        } else {
-//            return BlackFieldsNum - WhiteFieldsNum;
-//        }
     }
 
     /**
@@ -367,44 +426,6 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
                 lNodes.get(i).get(j).deleteNode();
             }
         }
-
-//        for (int i = 0; i < lNodes.size(); i++) {
-//            if (lNodes.get(i).isEmpty()) {
-//                continue;
-//            }
-//
-//            lNodes.get(i).get(0).getParent().
-//            setData(new FieldIntTuple(this.compare(lNodes.get(i), currentUsingBlackTokens).getValue(),
-//                    lNodes.get(i).get(0).getParent().getData().getField()));
-//            for (int j = 0; j < lNodes.get(i).size(); j++) {
-//                lNodes.get(i).get(j).deleteNode();
-//            }
-//        }
-
-//        for (final List<Node<FieldIntTuple>> lNode : lNodes) {
-//            if (lNode.isEmpty()) {
-//                continue;
-//            }
-//
-//            lNode.get(0).getParent().setData(
-//                    new FieldIntTuple(
-//                            this.compare(lNode, currentUsingBlackTokens).getValue(),
-//                            lNode.get(0).getParent().getData().getField()));
-//            for (final Node<FieldIntTuple> element : lNodes.get(i)) {
-//                element.deleteNode();
-//            }
-//        }
-//        for (final List<Node<FieldIntTuple>> group : rootnode.getOrganizedLowestLayer()) {
-//            currentUsingBlackTokens = !currentUsingBlackTokens;
-//            group.get(0).getParent().setData(this.compare(group, currentUsingBlackTokens));
-//            for (final Node<FieldIntTuple> node : group) {
-//                node.deleteNode();
-//
-//            }
-////            group.parallelStream().forEach(s -> {
-////                s.deleteNode();
-////            });
-//        }
         return rootnode;
     }
 
@@ -451,6 +472,13 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
 
     private FieldIntTuple minmax(final OthelloState state, final boolean usingBlackTokens,
             final List<OthelloField> activeFields, final Integer depth) throws GameException {
+
+//        return this.reccruschTree(
+//                this.evaluateLowestLayer(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth)),
+//                usingBlackTokens,
+//                depth + 1,
+//                -100000,
+//                100000);
         if (depth % 2 == 0) {
             return this.crushTree(
                     this.evaluateLowestLayer(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth)),
@@ -511,6 +539,65 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
         }
 
         return true;
+    }
+
+    private FieldIntTuple reccruschTree(final Node<FieldIntTuple> rootnode, final boolean usingBlackTokens,
+            final Integer depth, final Integer alpha, final Integer beta) {
+        Integer localAlpha = alpha;
+        Integer localBeta = beta;
+        if (depth <= 0) {
+            return rootnode.getData();
+        }
+
+        if (usingBlackTokens) {
+            FieldIntTuple bestNode = new FieldIntTuple(-10000, rootnode.getData().getField());
+            for (final Node<FieldIntTuple> child : rootnode.getChildren()) {
+                final FieldIntTuple currEval = new FieldIntTuple(0, child.getData().getField());
+                currEval.setValue(this.reccruschTree(child, false, depth - 1, localAlpha, localBeta).getValue());
+                if (bestNode.getValue() > currEval.getValue()) {
+                    bestNode = bestNode;
+                } else {
+                    bestNode = currEval;
+                }
+                localAlpha = Math.max(localAlpha, currEval.getValue());
+                if (localBeta <= localAlpha) {
+                    break;
+                }
+
+            }
+            return bestNode;
+        } else {
+            FieldIntTuple bestNode = new FieldIntTuple(10000, rootnode.getData().getField());
+            for (final Node<FieldIntTuple> child : rootnode.getChildren()) {
+                final FieldIntTuple currEval = new FieldIntTuple(0, child.getData().getField());
+                currEval.setValue(this.reccruschTree(child, true, depth - 1, localAlpha, localBeta).getValue());
+
+                if (bestNode.getValue() < currEval.getValue()) {
+                    bestNode = bestNode;
+                } else {
+                    bestNode = currEval;
+                }
+                localBeta = Math.min(localBeta, currEval.getValue());
+                if (localBeta <= localAlpha) {
+                    break;
+                }
+
+            }
+            return bestNode;
+        }
+    }
+
+    private boolean isWinning(final boolean usingBlackTokens, final Integer BlackActiveFieldsNum,
+            final Integer WhiteActiveFieldsNum, final Integer BlackFieldsNum, final Integer WhiteFieldsNum) {
+        if (BlackActiveFieldsNum.equals(0) && WhiteActiveFieldsNum.equals(0)) {
+            if (usingBlackTokens) {
+                return BlackFieldsNum > WhiteFieldsNum;
+            } else {
+                return WhiteFieldsNum > BlackFieldsNum;
+            }
+        } else {
+            return false;
+        }
     }
 
 }
