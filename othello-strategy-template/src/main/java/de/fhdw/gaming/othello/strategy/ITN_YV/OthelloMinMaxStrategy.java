@@ -82,7 +82,7 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
         if (this.Temperature < 10) {
             this.StableWorth = 3;
         }
-        if (this.Temperature < 23) {
+        if (this.Temperature < 27) {
             this.ActiveFieldEvaluation = false;
         }
         this.Temperature -= 1;
@@ -183,7 +183,7 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
         // possible to place a suitable token according to the rules of the game.
         // (Of course you can use a traditional for-each loop instead of streams for filtering.)
         final List<OthelloField> activeFields = new ArrayList<>();
-        emptyFields.values().parallelStream().filter((final OthelloField field) -> field.isActive(usingBlackTokens))
+        emptyFields.values().stream().filter((final OthelloField field) -> field.isActive(usingBlackTokens))
                 .forEachOrdered(activeFields::add);
         return activeFields;
     }
@@ -275,17 +275,15 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
      */
     private Integer evaluateBoard(final OthelloBoard board) {
 
-//        Integer BlackActiveFieldsNum = null;
         Integer BlackFieldsNum = null;
 
-//        Integer WhiteActiveFieldsNum = null;
         Integer WhiteFieldsNum = null;
-
-//        Integer EvalNum = null;
 
         final Set<OthelloPosition> BlackFields = board.getFieldsBeing(OthelloFieldState.BLACK).keySet();
         final Set<OthelloPosition> WhiteFields = board.getFieldsBeing(OthelloFieldState.WHITE).keySet();
 
+        final int BlackActiveFieldsNum = this.setup(board, true).size();
+        final int WhiteActiveFieldsNum = this.setup(board, false).size();
         BlackFieldsNum = BlackFields.size();
         WhiteFieldsNum = WhiteFields.size();
 
@@ -381,19 +379,18 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
                 WhiteFieldsNum += this.StableWorth;
             }
         }
-        if (BlackFieldsNum.equals(0)) {
-            return -1000;
-        }
-        if (WhiteFieldsNum.equals(0)) {
-            return 1000;
-        }
-//        if (this.isWinning(true, BlackActiveFieldsNum, WhiteActiveFieldsNum, BlackFieldsNum, WhiteFieldsNum)) {
-//            return 1000000;
+//        if (BlackFieldsNum.equals(0)) {
+//            return -1000;
 //        }
-//        if (this.isWinning(false, BlackActiveFieldsNum, WhiteActiveFieldsNum, BlackFieldsNum, WhiteFieldsNum)) {
-//            return -1000000;
+//        if (WhiteFieldsNum.equals(0)) {
+//            return 1000;
 //        }
-        else {
+        if (this.isWinning(true, BlackActiveFieldsNum, WhiteActiveFieldsNum, BlackFieldsNum, WhiteFieldsNum)) {
+            return 1000000;
+        }
+        if (this.isWinning(false, BlackActiveFieldsNum, WhiteActiveFieldsNum, BlackFieldsNum, WhiteFieldsNum)) {
+            return -1000000;
+        } else {
             return BlackFieldsNum - WhiteFieldsNum;
         }
 
@@ -544,12 +541,12 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
             final Integer depth, final Integer alpha, final Integer beta) {
         Integer localAlpha = alpha;
         Integer localBeta = beta;
-        if (depth <= 0) {
+        if (depth <= 0 || rootnode.getChildren().isEmpty()) {
             return rootnode.getData();
         }
 
         if (usingBlackTokens) {
-            FieldIntTuple bestNode = new FieldIntTuple(-10000, rootnode.getData().getField());
+            FieldIntTuple bestNode = new FieldIntTuple(-10000000, rootnode.getData().getField());
             for (final Node<FieldIntTuple> child : rootnode.getChildren()) {
                 final FieldIntTuple currEval = new FieldIntTuple(0, child.getData().getField());
                 currEval.setValue(this.reccruschTree(child, false, depth - 1, localAlpha, localBeta).getValue());
@@ -566,7 +563,7 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
             }
             return bestNode;
         } else {
-            FieldIntTuple bestNode = new FieldIntTuple(10000, rootnode.getData().getField());
+            FieldIntTuple bestNode = new FieldIntTuple(10000000, rootnode.getData().getField());
             for (final Node<FieldIntTuple> child : rootnode.getChildren()) {
                 final FieldIntTuple currEval = new FieldIntTuple(0, child.getData().getField());
                 currEval.setValue(this.reccruschTree(child, true, depth - 1, localAlpha, localBeta).getValue());
@@ -586,9 +583,9 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
         }
     }
 
-    private boolean isWinning(final boolean usingBlackTokens, final Integer BlackActiveFieldsNum,
-            final Integer WhiteActiveFieldsNum, final Integer BlackFieldsNum, final Integer WhiteFieldsNum) {
-        if (BlackActiveFieldsNum.equals(0) && WhiteActiveFieldsNum.equals(0)) {
+    private boolean isWinning(final boolean usingBlackTokens, final int BlackActiveFieldsNum,
+            final Integer WhiteActiveFieldsNum, final int BlackFieldsNum, final int WhiteFieldsNum) {
+        if (BlackActiveFieldsNum == 0 && WhiteActiveFieldsNum == 0) {
             if (usingBlackTokens) {
                 return BlackFieldsNum > WhiteFieldsNum;
             } else {
