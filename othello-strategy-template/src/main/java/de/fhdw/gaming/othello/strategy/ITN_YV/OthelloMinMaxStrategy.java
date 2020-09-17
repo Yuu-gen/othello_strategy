@@ -69,7 +69,6 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
 
     private Integer Temperature = 32;
     private Integer StableWorth = 7;
-    private boolean ActiveFieldEvaluation = true;
 //    private final Integer badFieldPenalty = 0;
 
     // define a method to actually find winning positions
@@ -81,9 +80,6 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
 
         if (this.Temperature < 10) {
             this.StableWorth = 3;
-        }
-        if (this.Temperature < 27) {
-            this.ActiveFieldEvaluation = false;
         }
         this.Temperature -= 1;
         this.workboard = state.getBoard().deepCopy();
@@ -275,99 +271,13 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
      */
     private Integer evaluateBoard(final OthelloBoard board) {
 
-        Integer BlackFieldsNum = null;
-
-        Integer WhiteFieldsNum = null;
-
         final Set<OthelloPosition> BlackFields = board.getFieldsBeing(OthelloFieldState.BLACK).keySet();
         final Set<OthelloPosition> WhiteFields = board.getFieldsBeing(OthelloFieldState.WHITE).keySet();
 
         final int BlackActiveFieldsNum = this.setup(board, true).size();
         final int WhiteActiveFieldsNum = this.setup(board, false).size();
-        BlackFieldsNum = BlackFields.size();
-        WhiteFieldsNum = WhiteFields.size();
-
-        if (this.ActiveFieldEvaluation) {
-            BlackFieldsNum = this.setup(board, true).size();
-            WhiteFieldsNum = this.setup(board, false).size();
-
-//            if (BlackFields.contains(OthelloPosition.of(0, 1))) {
-//                BlackActiveFieldsNum -= this.badFieldPenalty;
-//            }
-//            if (BlackFields.contains(OthelloPosition.of(1, 0))) {
-//                BlackActiveFieldsNum -= this.badFieldPenalty;
-//            }
-//            if (BlackFields.contains(OthelloPosition.of(1, 1))) {
-//                BlackActiveFieldsNum -= this.badFieldPenalty;
-//            }
-//            if (BlackFields.contains(OthelloPosition.of(0, 7))) {
-//                BlackActiveFieldsNum -= this.badFieldPenalty;
-//            }
-//            if (BlackFields.contains(OthelloPosition.of(1, 7))) {
-//                BlackActiveFieldsNum -= this.badFieldPenalty;
-//            }
-//            if (BlackFields.contains(OthelloPosition.of(1, 8))) {
-//                BlackActiveFieldsNum -= this.badFieldPenalty;
-//            }
-//            if (BlackFields.contains(OthelloPosition.of(7, 7))) {
-//                BlackActiveFieldsNum -= this.badFieldPenalty;
-//            }
-//            if (BlackFields.contains(OthelloPosition.of(7, 8))) {
-//                BlackActiveFieldsNum -= this.badFieldPenalty;
-//            }
-//            if (BlackFields.contains(OthelloPosition.of(8, 7))) {
-//                BlackActiveFieldsNum -= this.badFieldPenalty;
-//            }
-//            if (BlackFields.contains(OthelloPosition.of(7, 0))) {
-//                BlackActiveFieldsNum -= this.badFieldPenalty;
-//            }
-//            if (BlackFields.contains(OthelloPosition.of(7, 1))) {
-//                BlackActiveFieldsNum -= this.badFieldPenalty;
-//            }
-//            if (BlackFields.contains(OthelloPosition.of(8, 1))) {
-//                BlackActiveFieldsNum -= this.badFieldPenalty;
-//            }
-//
-//            if (WhiteFields.contains(OthelloPosition.of(0, 1))) {
-//                WhiteActiveFieldsNum -= this.badFieldPenalty;
-//            }
-//            if (WhiteFields.contains(OthelloPosition.of(1, 0))) {
-//                WhiteActiveFieldsNum -= this.badFieldPenalty;
-//            }
-//            if (WhiteFields.contains(OthelloPosition.of(1, 1))) {
-//                WhiteActiveFieldsNum -= this.badFieldPenalty;
-//            }
-//            if (WhiteFields.contains(OthelloPosition.of(0, 7))) {
-//                WhiteActiveFieldsNum -= this.badFieldPenalty;
-//            }
-//            if (WhiteFields.contains(OthelloPosition.of(1, 7))) {
-//                WhiteActiveFieldsNum -= this.badFieldPenalty;
-//            }
-//            if (WhiteFields.contains(OthelloPosition.of(1, 8))) {
-//                WhiteActiveFieldsNum -= this.badFieldPenalty;
-//            }
-//            if (WhiteFields.contains(OthelloPosition.of(7, 7))) {
-//                WhiteActiveFieldsNum -= this.badFieldPenalty;
-//            }
-//            if (WhiteFields.contains(OthelloPosition.of(7, 8))) {
-//                WhiteActiveFieldsNum -= this.badFieldPenalty;
-//            }
-//            if (WhiteFields.contains(OthelloPosition.of(8, 7))) {
-//                WhiteActiveFieldsNum -= this.badFieldPenalty;
-//            }
-//            if (WhiteFields.contains(OthelloPosition.of(7, 0))) {
-//                WhiteActiveFieldsNum -= this.badFieldPenalty;
-//            }
-//            if (WhiteFields.contains(OthelloPosition.of(7, 1))) {
-//                WhiteActiveFieldsNum -= this.badFieldPenalty;
-//            }
-//            if (WhiteFields.contains(OthelloPosition.of(8, 1))) {
-//                WhiteActiveFieldsNum -= this.badFieldPenalty;
-//            }
-
-        } else {
-
-        }
+        int BlackFieldsNum = BlackFields.size();
+        int WhiteFieldsNum = WhiteFields.size();
 
         for (final OthelloPosition BlackPosition : BlackFields) {
             if (this.isFieldStable(board.getFieldAt(BlackPosition))) {
