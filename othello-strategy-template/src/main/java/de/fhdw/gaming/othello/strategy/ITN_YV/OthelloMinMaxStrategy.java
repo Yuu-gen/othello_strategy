@@ -70,7 +70,7 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
     private Integer Temperature = 32;
     private Integer StableWorth = 7;
     private boolean ActiveFieldEvaluation = true;
-    private final Integer badFieldPenalty = 0;
+//    private final Integer badFieldPenalty = 0;
 
     // define a method to actually find winning positions
     // penalize putting tokens on the fields around the corners in the fist moves
@@ -275,13 +275,13 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
      */
     private Integer evaluateBoard(final OthelloBoard board) {
 
-        Integer BlackActiveFieldsNum = null;
+//        Integer BlackActiveFieldsNum = null;
         Integer BlackFieldsNum = null;
 
-        Integer WhiteActiveFieldsNum = null;
+//        Integer WhiteActiveFieldsNum = null;
         Integer WhiteFieldsNum = null;
 
-        Integer EvalNum = null;
+//        Integer EvalNum = null;
 
         final Set<OthelloPosition> BlackFields = board.getFieldsBeing(OthelloFieldState.BLACK).keySet();
         final Set<OthelloPosition> WhiteFields = board.getFieldsBeing(OthelloFieldState.WHITE).keySet();
@@ -289,10 +289,9 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
         BlackFieldsNum = BlackFields.size();
         WhiteFieldsNum = WhiteFields.size();
 
-        BlackActiveFieldsNum = this.setup(board, true).size();
-        WhiteActiveFieldsNum = this.setup(board, false).size();
-
         if (this.ActiveFieldEvaluation) {
+            BlackFieldsNum = this.setup(board, true).size();
+            WhiteFieldsNum = this.setup(board, false).size();
 
 //            if (BlackFields.contains(OthelloPosition.of(0, 1))) {
 //                BlackActiveFieldsNum -= this.badFieldPenalty;
@@ -368,34 +367,34 @@ public final class OthelloMinMaxStrategy implements OthelloStrategy {
 //                WhiteActiveFieldsNum -= this.badFieldPenalty;
 //            }
 
-            EvalNum = BlackActiveFieldsNum - WhiteActiveFieldsNum;
-
         } else {
-            EvalNum = BlackFieldsNum - WhiteFieldsNum;
+
         }
 
         for (final OthelloPosition BlackPosition : BlackFields) {
             if (this.isFieldStable(board.getFieldAt(BlackPosition))) {
-                EvalNum += this.StableWorth;
+                BlackFieldsNum += this.StableWorth;
             }
         }
         for (final OthelloPosition WhitePosition : WhiteFields) {
             if (this.isFieldStable(board.getFieldAt(WhitePosition))) {
-                EvalNum -= this.StableWorth;
+                WhiteFieldsNum += this.StableWorth;
             }
         }
-//        if (BlackActiveFieldsNum.equals(0)) {
-//            return -1000;
-//        }
-//        if (WhiteActiveFieldsNum.equals(0)) {
-//            return 1000;
-        if (this.isWinning(true, BlackActiveFieldsNum, WhiteActiveFieldsNum, BlackFieldsNum, WhiteFieldsNum)) {
-            return 1000000;
+        if (BlackFieldsNum.equals(0)) {
+            return -1000;
         }
-        if (this.isWinning(false, BlackActiveFieldsNum, WhiteActiveFieldsNum, BlackFieldsNum, WhiteFieldsNum)) {
-            return -1000000;
-        } else {
-            return EvalNum;
+        if (WhiteFieldsNum.equals(0)) {
+            return 1000;
+        }
+//        if (this.isWinning(true, BlackActiveFieldsNum, WhiteActiveFieldsNum, BlackFieldsNum, WhiteFieldsNum)) {
+//            return 1000000;
+//        }
+//        if (this.isWinning(false, BlackActiveFieldsNum, WhiteActiveFieldsNum, BlackFieldsNum, WhiteFieldsNum)) {
+//            return -1000000;
+//        }
+        else {
+            return BlackFieldsNum - WhiteFieldsNum;
         }
 
     }
