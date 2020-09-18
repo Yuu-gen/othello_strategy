@@ -24,5 +24,6 @@ module de.fhdw.gaming.othello.strategy.examples {
             de.fhdw.gaming.othello.strategy.examples.maxFlips.OthelloMaxFlipsMoveStrategyFactory,
             de.fhdw.gaming.othello.strategy.examples.minOppMob.OthelloMinOppMobStrategyFactory,
             de.fhdw.gaming.othello.strategy.examples.minMaxD3.OthelloMinMaxD3StrategyFactory,
-            de.fhdw.gaming.othello.strategy.examples.MinMaxANG.OthelloMinMaxANGFactory;
+            de.fhdw.gaming.othello.strategy.examples.MinMaxANG.OthelloMinMaxANGFactory,
+            de.fhdw.gaming.othello.strategy.examples.MinMaxCombi.OthelloMinMaxCombiFactory;
 }

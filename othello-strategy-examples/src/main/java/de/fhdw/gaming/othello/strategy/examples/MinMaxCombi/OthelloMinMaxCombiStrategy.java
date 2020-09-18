@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with othello-strategy-template.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.fhdw.gaming.othello.strategy.examples.MinMaxANG;
+package de.fhdw.gaming.othello.strategy.examples.MinMaxCombi;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,7 +42,7 @@ import de.fhdw.gaming.othello.core.moves.factory.OthelloMoveFactory;
  * <p>
  * TODO: Describe what it does.
  */
-public final class OthelloMinMaxANGStrategy implements OthelloStrategy {
+public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
 
     /**
      * The factory for creating Othello moves.
@@ -54,7 +54,7 @@ public final class OthelloMinMaxANGStrategy implements OthelloStrategy {
      *
      * @param moveFactory The factory for creating Othello moves.
      */
-    OthelloMinMaxANGStrategy(final OthelloMoveFactory moveFactory) {
+    OthelloMinMaxCombiStrategy(final OthelloMoveFactory moveFactory) {
         this.moveFactory = moveFactory;
     }
 
@@ -169,33 +169,100 @@ public final class OthelloMinMaxANGStrategy implements OthelloStrategy {
         for (final OthelloPosition ownPosition : ownFields) {
 
             if (ownPosition.equals(OthelloPosition.of(0, 0))) {
-                OthelloMinMaxANGStrategy.BoardWeights.replace(OthelloPosition.of(0, 1), 0);
-                OthelloMinMaxANGStrategy.BoardWeights.replace(OthelloPosition.of(1, 0), 0);
-                OthelloMinMaxANGStrategy.BoardWeights.replace(OthelloPosition.of(1, 1), 0);
+                OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 1), 0);
+                OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(1, 0), 0);
+                OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(1, 1), 0);
                 this.ownCorners += 1;
             }
             if (ownPosition.equals(OthelloPosition.of(0, 7))) {
-                OthelloMinMaxANGStrategy.BoardWeights.replace(OthelloPosition.of(0, 6), 0);
-                OthelloMinMaxANGStrategy.BoardWeights.replace(OthelloPosition.of(1, 7), 0);
-                OthelloMinMaxANGStrategy.BoardWeights.replace(OthelloPosition.of(1, 6), 0);
+                OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 6), 0);
+                OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(1, 7), 0);
+                OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(1, 6), 0);
                 this.ownCorners += 1;
 
             }
             if (ownPosition.equals(OthelloPosition.of(7, 0))) {
-                OthelloMinMaxANGStrategy.BoardWeights.replace(OthelloPosition.of(6, 0), 0);
-                OthelloMinMaxANGStrategy.BoardWeights.replace(OthelloPosition.of(7, 1), 0);
-                OthelloMinMaxANGStrategy.BoardWeights.replace(OthelloPosition.of(1, 6), 0);
+                OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(6, 0), 0);
+                OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(7, 1), 0);
+                OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(1, 6), 0);
                 this.ownCorners += 1;
 
             }
             if (ownPosition.equals(OthelloPosition.of(7, 7))) {
-                OthelloMinMaxANGStrategy.BoardWeights.replace(OthelloPosition.of(7, 6), 0);
-                OthelloMinMaxANGStrategy.BoardWeights.replace(OthelloPosition.of(6, 7), 0);
-                OthelloMinMaxANGStrategy.BoardWeights.replace(OthelloPosition.of(6, 6), 0);
+                OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(7, 6), 0);
+                OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(6, 7), 0);
+                OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(6, 6), 0);
                 this.ownCorners += 1;
             }
         }
         this.StableWorth = this.ownCorners * 6;
+//        if (this.Temperature < 19) {
+//            this.StableWorth = 20;
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 1), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 4), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 5), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 7), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(1, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(1, 1), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(1, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(1, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(1, 4), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(1, 5), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(1, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(1, 7), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 1), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 4), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 5), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 7), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 1), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 4), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 5), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 7), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(4, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(4, 1), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(4, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(4, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(4, 4), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(4, 5), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(4, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(4, 7), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(5, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(5, 1), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(5, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(5, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(5, 4), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(5, 5), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(5, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(5, 7), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 1), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 4), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 5), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(0, 7), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(7, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(7, 1), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(7, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(7, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(7, 4), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(7, 5), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(7, 0), 5);
+//            OthelloMinMaxCombiStrategy.BoardWeights.replace(OthelloPosition.of(7, 7), 5);
+//        }
 
         // The Othello game forces a player to skip a move if no valid move is possible. So you should check for this
         // situation first.
@@ -268,7 +335,7 @@ public final class OthelloMinMaxANGStrategy implements OthelloStrategy {
 
     @Override
     public String toString() {
-        return OthelloMinMaxANGStrategy.class.getSimpleName();
+        return OthelloMinMaxCombiStrategy.class.getSimpleName();
     }
 
     /**
@@ -409,7 +476,7 @@ public final class OthelloMinMaxANGStrategy implements OthelloStrategy {
                 if (this.isFieldStable(board.getFieldAt(BlackPosition))) {
                     BlackFieldsNum += this.StableWorth;
                 }
-                BlackFieldsNum += OthelloMinMaxANGStrategy.BoardWeights.get(BlackPosition);
+                BlackFieldsNum += OthelloMinMaxCombiStrategy.BoardWeights.get(BlackPosition);
                 BlackFieldsNum -= this.isBadPosition(board.getFieldAt(BlackPosition));
 
             }
@@ -417,11 +484,11 @@ public final class OthelloMinMaxANGStrategy implements OthelloStrategy {
                 if (this.isFieldStable(board.getFieldAt(WhitePosition))) {
                     WhiteFieldsNum += this.StableWorth;
                 }
-                WhiteFieldsNum += OthelloMinMaxANGStrategy.BoardWeights.get(WhitePosition);
+                WhiteFieldsNum += OthelloMinMaxCombiStrategy.BoardWeights.get(WhitePosition);
                 WhiteFieldsNum -= this.isBadPosition(board.getFieldAt(WhitePosition));
 
             }
-            return BlackFieldsNum - WhiteFieldsNum;
+            return ((BlackFieldsNum + BlackActiveFieldsNum) - (WhiteFieldsNum + WhiteActiveFieldsNum));
         }
 
     }
