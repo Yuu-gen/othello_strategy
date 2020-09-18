@@ -261,7 +261,7 @@ public final class OthelloMinMaxANGStrategy implements OthelloStrategy {
 //                this
 //                .crushTree(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, 4), usingBlackTokens, 4);
 
-//        System.out.println(besttuple.getValue());
+        System.out.println(besttuple.getValue());
 //        System.out.println(this.Temperature);
 
         final OthelloPosition bestposition = besttuple.getField().getPosition();
@@ -402,28 +402,28 @@ public final class OthelloMinMaxANGStrategy implements OthelloStrategy {
 //                WhiteFieldsNum += this.StableWorth;
 //            }
 //        }
-        for (final OthelloPosition BlackPosition : BlackFields) {
-            if (this.isFieldStable(board.getFieldAt(BlackPosition))) {
-                BlackFieldsNum += this.StableWorth;
-            }
-            BlackFieldsNum += OthelloMinMaxANGStrategy.BoardWeights.get(BlackPosition);
-            BlackFieldsNum -= this.isBadPosition(board.getFieldAt(BlackPosition));
-
-        }
-        for (final OthelloPosition WhitePosition : WhiteFields) {
-            if (this.isFieldStable(board.getFieldAt(WhitePosition))) {
-                WhiteFieldsNum += this.StableWorth;
-            }
-            WhiteFieldsNum += OthelloMinMaxANGStrategy.BoardWeights.get(WhitePosition);
-            WhiteFieldsNum -= this.isBadPosition(board.getFieldAt(WhitePosition));
-
-        }
         if (this.isWinning(true, BlackActiveFieldsNum, WhiteActiveFieldsNum, BlackFieldsNum, WhiteFieldsNum)) {
             return 1000000;
         }
         if (this.isWinning(false, BlackActiveFieldsNum, WhiteActiveFieldsNum, BlackFieldsNum, WhiteFieldsNum)) {
             return -1000000;
         } else {
+            for (final OthelloPosition BlackPosition : BlackFields) {
+                if (this.isFieldStable(board.getFieldAt(BlackPosition))) {
+                    BlackFieldsNum += this.StableWorth;
+                }
+                BlackFieldsNum += OthelloMinMaxANGStrategy.BoardWeights.get(BlackPosition);
+                BlackFieldsNum -= this.isBadPosition(board.getFieldAt(BlackPosition));
+
+            }
+            for (final OthelloPosition WhitePosition : WhiteFields) {
+                if (this.isFieldStable(board.getFieldAt(WhitePosition))) {
+                    WhiteFieldsNum += this.StableWorth;
+                }
+                WhiteFieldsNum += OthelloMinMaxANGStrategy.BoardWeights.get(WhitePosition);
+                WhiteFieldsNum -= this.isBadPosition(board.getFieldAt(WhitePosition));
+
+            }
             return BlackFieldsNum - WhiteFieldsNum;
         }
 
