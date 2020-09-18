@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with othello-strategy-template.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.fhdw.gaming.othello.strategy.examples.MinMaxCombi;
+package de.fhdw.gaming.othello.strategy.examples.MinMaxCombi2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,7 +42,7 @@ import de.fhdw.gaming.othello.core.moves.factory.OthelloMoveFactory;
  * <p>
  * TODO: Describe what it does.
  */
-public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
+public final class OthelloMinMaxCombi2Strategy implements OthelloStrategy {
 
     /**
      * The factory for creating Othello moves.
@@ -54,7 +54,7 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
      *
      * @param moveFactory The factory for creating Othello moves.
      */
-    OthelloMinMaxCombiStrategy(final OthelloMoveFactory moveFactory) {
+    OthelloMinMaxCombi2Strategy(final OthelloMoveFactory moveFactory) {
         this.moveFactory = moveFactory;
     }
 
@@ -70,7 +70,6 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
 
     private Integer temperature = 32;
     private Integer stableWorth = 3;
-    private int fieldCoefficient = 1;
 
     private int ownCorners;
 
@@ -155,11 +154,8 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
             throws GameException {
         this.ownCorners = 0;
         this.stableWorth = 3;
-        if (this.temperature < 10) {
-            this.DEPTHOFTREE = 5;
-        }
-        if (this.temperature < 5) {
-            this.fieldCoefficient = 2;
+        if (this.temperature < 7) {
+            this.DEPTHOFTREE = 4;
         }
 
         this.temperature -= 1;
@@ -177,29 +173,29 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
         for (final OthelloPosition ownPosition : ownFields) {
 
             if (ownPosition.equals(OthelloPosition.of(0, 0))) {
-                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(0, 1), 0);
-                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(1, 0), 0);
-                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(1, 1), 0);
+                OthelloMinMaxCombi2Strategy.boardWeights.replace(OthelloPosition.of(0, 1), 0);
+                OthelloMinMaxCombi2Strategy.boardWeights.replace(OthelloPosition.of(1, 0), 0);
+                OthelloMinMaxCombi2Strategy.boardWeights.replace(OthelloPosition.of(1, 1), 0);
                 this.ownCorners += 1;
             }
             if (ownPosition.equals(OthelloPosition.of(0, 7))) {
-                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(0, 6), 0);
-                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(1, 7), 0);
-                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(1, 6), 0);
+                OthelloMinMaxCombi2Strategy.boardWeights.replace(OthelloPosition.of(0, 6), 0);
+                OthelloMinMaxCombi2Strategy.boardWeights.replace(OthelloPosition.of(1, 7), 0);
+                OthelloMinMaxCombi2Strategy.boardWeights.replace(OthelloPosition.of(1, 6), 0);
                 this.ownCorners += 1;
 
             }
             if (ownPosition.equals(OthelloPosition.of(7, 0))) {
-                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(6, 0), 0);
-                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(7, 1), 0);
-                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(1, 6), 0);
+                OthelloMinMaxCombi2Strategy.boardWeights.replace(OthelloPosition.of(6, 0), 0);
+                OthelloMinMaxCombi2Strategy.boardWeights.replace(OthelloPosition.of(7, 1), 0);
+                OthelloMinMaxCombi2Strategy.boardWeights.replace(OthelloPosition.of(1, 6), 0);
                 this.ownCorners += 1;
 
             }
             if (ownPosition.equals(OthelloPosition.of(7, 7))) {
-                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(7, 6), 0);
-                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(6, 7), 0);
-                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(6, 6), 0);
+                OthelloMinMaxCombi2Strategy.boardWeights.replace(OthelloPosition.of(7, 6), 0);
+                OthelloMinMaxCombi2Strategy.boardWeights.replace(OthelloPosition.of(6, 7), 0);
+                OthelloMinMaxCombi2Strategy.boardWeights.replace(OthelloPosition.of(6, 6), 0);
                 this.ownCorners += 1;
             }
         }
@@ -276,7 +272,7 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
 
     @Override
     public String toString() {
-        return OthelloMinMaxCombiStrategy.class.getSimpleName();
+        return OthelloMinMaxCombi2Strategy.class.getSimpleName();
     }
 
     /**
@@ -417,7 +413,7 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
                 if (this.isFieldStable(board.getFieldAt(BlackPosition))) {
                     BlackFieldsNum += this.stableWorth;
                 }
-                BlackFieldsNum += OthelloMinMaxCombiStrategy.boardWeights.get(BlackPosition);
+                BlackFieldsNum += OthelloMinMaxCombi2Strategy.boardWeights.get(BlackPosition);
                 BlackFieldsNum -= this.getFieldPenalty(board.getFieldAt(BlackPosition));
 
             }
@@ -425,12 +421,11 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
                 if (this.isFieldStable(board.getFieldAt(WhitePosition))) {
                     WhiteFieldsNum += this.stableWorth;
                 }
-                WhiteFieldsNum += OthelloMinMaxCombiStrategy.boardWeights.get(WhitePosition);
+                WhiteFieldsNum += OthelloMinMaxCombi2Strategy.boardWeights.get(WhitePosition);
                 WhiteFieldsNum -= this.getFieldPenalty(board.getFieldAt(WhitePosition));
 
             }
-            return ((BlackFieldsNum * this.fieldCoefficient + BlackActiveFieldsNum)
-                    - (WhiteFieldsNum * this.fieldCoefficient + WhiteActiveFieldsNum));
+            return ((BlackFieldsNum + BlackActiveFieldsNum) - (WhiteFieldsNum + WhiteActiveFieldsNum));
         }
 
     }
