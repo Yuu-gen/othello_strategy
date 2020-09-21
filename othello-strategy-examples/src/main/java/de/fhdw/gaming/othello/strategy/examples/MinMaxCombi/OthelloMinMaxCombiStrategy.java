@@ -178,9 +178,12 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
         this.stableWorth = 3;
         if (this.temperature < 10) {
             this.depthOfTree = 5;
+            this.stableWorth = 0;
+
         }
         if (this.temperature < 5) {
             this.fieldCoefficient = 2;
+
         }
 
         this.temperature -= 1;
