@@ -45,6 +45,24 @@ import de.fhdw.gaming.othello.core.moves.factory.OthelloMoveFactory;
 public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
 
     /**
+    *
+    */
+    private Integer depthOfTree = 3;
+
+    /**
+     * place to put the state before modifying it for computations.
+     */
+    private OthelloBoard workboard = null;
+
+    private Integer temperature = 32;
+    private Integer stableWorth = 3;
+    private int fieldCoefficient = 1;
+
+    private int ownCorners;
+
+    private static HashMap<OthelloPosition, Integer> boardWeights = initializeBoardWeigths();
+
+    /**
      * The factory for creating Othello moves.
      */
     private final OthelloMoveFactory moveFactory;
@@ -58,94 +76,97 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
         this.moveFactory = moveFactory;
     }
 
+    @Override
+    public void reset() {
+        this.depthOfTree = 3;
+        this.temperature = 32;
+        this.stableWorth = 3;
+        this.fieldCoefficient = 1;
+        OthelloMinMaxCombiStrategy.boardWeights = initializeBoardWeigths();
+    }
+
     /**
+     * Initialisiert die HashMap für die Gewichtungen der einzelnen Felder.
      *
+     * @return HashMap im Initialzustand
      */
-    private Integer DEPTHOFTREE = 3;
+    private static HashMap<OthelloPosition, Integer> initializeBoardWeigths() {
+        return new HashMap<>() {
+            /**
+             *
+             */
+            private static final long serialVersionUID = 1L;
 
-    /**
-     * place to put the state before modifying it for computations.
-     */
-    private OthelloBoard workboard = null;
+            {
+                this.put(OthelloPosition.of(0, 0), 100);
+                this.put(OthelloPosition.of(0, 1), -30);
+                this.put(OthelloPosition.of(0, 2), 6);
+                this.put(OthelloPosition.of(0, 3), 2);
+                this.put(OthelloPosition.of(0, 4), 2);
+                this.put(OthelloPosition.of(0, 5), 6);
+                this.put(OthelloPosition.of(0, 6), -30);
+                this.put(OthelloPosition.of(0, 7), 100);
+                this.put(OthelloPosition.of(1, 0), -30);
+                this.put(OthelloPosition.of(1, 1), -50);
+                this.put(OthelloPosition.of(1, 2), 0);
+                this.put(OthelloPosition.of(1, 3), 0);
+                this.put(OthelloPosition.of(1, 4), 0);
+                this.put(OthelloPosition.of(1, 5), 0);
+                this.put(OthelloPosition.of(1, 6), -50);
+                this.put(OthelloPosition.of(1, 7), -30);
+                this.put(OthelloPosition.of(2, 0), 6);
+                this.put(OthelloPosition.of(2, 1), 0);
+                this.put(OthelloPosition.of(2, 2), 0);
+                this.put(OthelloPosition.of(2, 3), 0);
+                this.put(OthelloPosition.of(2, 4), 0);
+                this.put(OthelloPosition.of(2, 5), 0);
+                this.put(OthelloPosition.of(2, 6), 0);
+                this.put(OthelloPosition.of(2, 7), 6);
+                this.put(OthelloPosition.of(3, 0), 2);
+                this.put(OthelloPosition.of(3, 1), 0);
+                this.put(OthelloPosition.of(3, 2), 0);
+                this.put(OthelloPosition.of(3, 3), 3);
+                this.put(OthelloPosition.of(3, 4), 3);
+                this.put(OthelloPosition.of(3, 5), 0);
+                this.put(OthelloPosition.of(3, 6), 0);
+                this.put(OthelloPosition.of(3, 7), 2);
+                this.put(OthelloPosition.of(4, 0), 2);
+                this.put(OthelloPosition.of(4, 1), 0);
+                this.put(OthelloPosition.of(4, 2), 0);
+                this.put(OthelloPosition.of(4, 3), 3);
+                this.put(OthelloPosition.of(4, 4), 3);
+                this.put(OthelloPosition.of(4, 5), 0);
+                this.put(OthelloPosition.of(4, 6), 0);
+                this.put(OthelloPosition.of(4, 7), 2);
+                this.put(OthelloPosition.of(5, 0), 6);
+                this.put(OthelloPosition.of(5, 1), 0);
+                this.put(OthelloPosition.of(5, 2), 0);
+                this.put(OthelloPosition.of(5, 3), 0);
+                this.put(OthelloPosition.of(5, 4), 0);
+                this.put(OthelloPosition.of(5, 5), 0);
+                this.put(OthelloPosition.of(5, 6), 0);
+                this.put(OthelloPosition.of(5, 7), 6);
+                this.put(OthelloPosition.of(6, 0), -30);
+                this.put(OthelloPosition.of(6, 1), -50);
+                this.put(OthelloPosition.of(6, 2), 0);
+                this.put(OthelloPosition.of(6, 3), 0);
+                this.put(OthelloPosition.of(6, 4), 0);
+                this.put(OthelloPosition.of(6, 5), 0);
+                this.put(OthelloPosition.of(6, 6), -50);
+                this.put(OthelloPosition.of(6, 7), -30);
+                this.put(OthelloPosition.of(7, 0), 100);
+                this.put(OthelloPosition.of(7, 1), -30);
+                this.put(OthelloPosition.of(7, 2), 6);
+                this.put(OthelloPosition.of(7, 3), 2);
+                this.put(OthelloPosition.of(7, 4), 2);
+                this.put(OthelloPosition.of(7, 5), 6);
+                this.put(OthelloPosition.of(7, 6), -30);
+                this.put(OthelloPosition.of(7, 7), 100);
+            }
+        };
+    }
 
-    private Integer temperature = 32;
-    private Integer stableWorth = 3;
-    private int fieldCoefficient = 1;
-
-    private int ownCorners;
-
-    private static HashMap<OthelloPosition, Integer> boardWeights = new HashMap<>() {
-
-        {
-            this.put(OthelloPosition.of(0, 0), 100);
-            this.put(OthelloPosition.of(0, 1), -30);
-            this.put(OthelloPosition.of(0, 2), 6);
-            this.put(OthelloPosition.of(0, 3), 2);
-            this.put(OthelloPosition.of(0, 4), 2);
-            this.put(OthelloPosition.of(0, 5), 6);
-            this.put(OthelloPosition.of(0, 6), -30);
-            this.put(OthelloPosition.of(0, 7), 100);
-            this.put(OthelloPosition.of(1, 0), -30);
-            this.put(OthelloPosition.of(1, 1), -50);
-            this.put(OthelloPosition.of(1, 2), 0);
-            this.put(OthelloPosition.of(1, 3), 0);
-            this.put(OthelloPosition.of(1, 4), 0);
-            this.put(OthelloPosition.of(1, 5), 0);
-            this.put(OthelloPosition.of(1, 6), -50);
-            this.put(OthelloPosition.of(1, 7), -30);
-            this.put(OthelloPosition.of(2, 0), 6);
-            this.put(OthelloPosition.of(2, 1), 0);
-            this.put(OthelloPosition.of(2, 2), 0);
-            this.put(OthelloPosition.of(2, 3), 0);
-            this.put(OthelloPosition.of(2, 4), 0);
-            this.put(OthelloPosition.of(2, 5), 0);
-            this.put(OthelloPosition.of(2, 6), 0);
-            this.put(OthelloPosition.of(2, 7), 6);
-            this.put(OthelloPosition.of(3, 0), 2);
-            this.put(OthelloPosition.of(3, 1), 0);
-            this.put(OthelloPosition.of(3, 2), 0);
-            this.put(OthelloPosition.of(3, 3), 3);
-            this.put(OthelloPosition.of(3, 4), 3);
-            this.put(OthelloPosition.of(3, 5), 0);
-            this.put(OthelloPosition.of(3, 6), 0);
-            this.put(OthelloPosition.of(3, 7), 2);
-            this.put(OthelloPosition.of(4, 0), 2);
-            this.put(OthelloPosition.of(4, 1), 0);
-            this.put(OthelloPosition.of(4, 2), 0);
-            this.put(OthelloPosition.of(4, 3), 3);
-            this.put(OthelloPosition.of(4, 4), 3);
-            this.put(OthelloPosition.of(4, 5), 0);
-            this.put(OthelloPosition.of(4, 6), 0);
-            this.put(OthelloPosition.of(4, 7), 2);
-            this.put(OthelloPosition.of(5, 0), 6);
-            this.put(OthelloPosition.of(5, 1), 0);
-            this.put(OthelloPosition.of(5, 2), 0);
-            this.put(OthelloPosition.of(5, 3), 0);
-            this.put(OthelloPosition.of(5, 4), 0);
-            this.put(OthelloPosition.of(5, 5), 0);
-            this.put(OthelloPosition.of(5, 6), 0);
-            this.put(OthelloPosition.of(5, 7), 6);
-            this.put(OthelloPosition.of(6, 0), -30);
-            this.put(OthelloPosition.of(6, 1), -50);
-            this.put(OthelloPosition.of(6, 2), 0);
-            this.put(OthelloPosition.of(6, 3), 0);
-            this.put(OthelloPosition.of(6, 4), 0);
-            this.put(OthelloPosition.of(6, 5), 0);
-            this.put(OthelloPosition.of(6, 6), -50);
-            this.put(OthelloPosition.of(6, 7), -30);
-            this.put(OthelloPosition.of(7, 0), 100);
-            this.put(OthelloPosition.of(7, 1), -30);
-            this.put(OthelloPosition.of(7, 2), 6);
-            this.put(OthelloPosition.of(7, 3), 2);
-            this.put(OthelloPosition.of(7, 4), 2);
-            this.put(OthelloPosition.of(7, 5), 6);
-            this.put(OthelloPosition.of(7, 6), -30);
-            this.put(OthelloPosition.of(7, 7), 100);
-        }
-
-        ;
-    };
-//    private final Integer badFieldPenalty = 0;
+    // private final Integer badFieldPenalty = 0;
 
     // define a method to actually find winning positions
     // penalize putting tokens on the fields around the corners in the fist moves
@@ -156,7 +177,7 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
         this.ownCorners = 0;
         this.stableWorth = 3;
         if (this.temperature < 10) {
-            this.DEPTHOFTREE = 5;
+            this.depthOfTree = 5;
         }
         if (this.temperature < 5) {
             this.fieldCoefficient = 2;
@@ -174,6 +195,7 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
             ownFields = this.workboard.getFieldsBeing(OthelloFieldState.WHITE).keySet();
 
         }
+        // Kann ausgelagert werden in eine Funktion checkOwnedCorners
         for (final OthelloPosition ownPosition : ownFields) {
 
             if (ownPosition.equals(OthelloPosition.of(0, 0))) {
@@ -258,7 +280,7 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
 //        }
 
 //        final long startTime = System.nanoTime();
-        final FieldIntTuple besttuple = this.minmax(state, usingBlackTokens, activeFields, this.DEPTHOFTREE);
+        final FieldIntTuple besttuple = this.minmax(state, usingBlackTokens, activeFields, this.depthOfTree);
 //        final long endTime = System.nanoTime();
 //        final long duration = (endTime - startTime);
 //        System.out.println(duration / 1000000000);// division to get Seconds
