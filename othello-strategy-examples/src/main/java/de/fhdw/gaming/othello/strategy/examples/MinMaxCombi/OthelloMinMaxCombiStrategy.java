@@ -20,6 +20,7 @@ package de.fhdw.gaming.othello.strategy.examples.MinMaxCombi;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -52,7 +53,6 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
     /**
      * place to put the state before modifying it for computations.
      */
-    private OthelloBoard workboard = null;
 
     private Integer temperature = 32;
     private Integer stableWorth = 3;
@@ -187,15 +187,14 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
         }
 
         this.temperature -= 1;
-        this.workboard = state.getBoard().deepCopy();
         final boolean usingBlackTokens = player.isUsingBlackTokens();
 
-        Set<OthelloPosition> ownFields = null;
+        Set<OthelloPosition> ownFields = new HashSet<>();
         final List<OthelloField> activeFields = this.setup(state.getBoard(), usingBlackTokens);
         if (usingBlackTokens) {
-            ownFields = this.workboard.getFieldsBeing(OthelloFieldState.BLACK).keySet();
+            ownFields = state.getBoard().getFieldsBeing(OthelloFieldState.BLACK).keySet();
         } else {
-            ownFields = this.workboard.getFieldsBeing(OthelloFieldState.WHITE).keySet();
+            ownFields = state.getBoard().getFieldsBeing(OthelloFieldState.WHITE).keySet();
 
         }
         // Kann ausgelagert werden in eine Funktion checkOwnedCorners
@@ -249,41 +248,12 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
         // then we discover how stupid it is to return the first Element of an Empty List and remember that we have to
         // actually reset the
         // Boardstate after we used place token and cry
-//        OthelloField bestField = activeFields.get(0);
-//        Integer bestFieldValue = 100;
-//        Integer value = 0;
-//        for (int i = 0; i < activeFields.size(); i++) {
-//            this.workstate = state.deepCopy();
-//            value = this.evaluate(this.setup(this.workstate.getBoard(), usingBlackTokens).get(i), usingBlackTokens);
-//            // System.out.println(this.oldstate.getBoard());
-//            if (value < bestFieldValue) {
-//                bestField = activeFields.get(i);
-//                bestFieldValue = value;
-//            }
-////            System.out.println(
-////                    "the value for" + activeFields.get(i).getPosition() + " is: "
-////                            + this.evaluate(activeFields.get(i), usingBlackTokens));
-////            System.out.println(activeFields + "   nachmPlaceen");
-//        }
-
-        // We did not find a suitable field, so we simply place a token on the first active field.
-        // System.out.println(activeFields.get(0) + "will be placed");
-
-//        try {
-//            System.out.println(
-//                    this.crushTree(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, 5), usingBlackTokens,5)
-//                            .toString()
-//            );
-//        } catch (GameException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        } catch (Exception e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        }
 
 //        final long startTime = System.nanoTime();
-        final FieldIntTuple besttuple = this.minmax(state, usingBlackTokens, activeFields, this.depthOfTree);
+        FieldIntTuple besttuple;
+
+        besttuple = this.minmax(state, usingBlackTokens, activeFields, this.depthOfTree);
+
 //        final long endTime = System.nanoTime();
 //        final long duration = (endTime - startTime);
 //        System.out.println(duration / 1000000000);// division to get Seconds
@@ -296,7 +266,9 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
 
         final OthelloPosition bestposition = besttuple.getField().getPosition();
 //        final OthelloPosition bestposition = this.calculate(activeFields, usingBlackTokens, state);
-        return Optional.of(this.moveFactory.createPlaceTokenMove(usingBlackTokens, bestposition));
+        final Optional<OthelloMove> output = Optional
+                .of(this.moveFactory.createPlaceTokenMove(usingBlackTokens, bestposition));
+        return output;
     }
 
     @Override
@@ -343,14 +315,14 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
     private Node<FieldIntTuple> growTree(final OthelloField field, final boolean usingBlackTokens,
             final List<OthelloField> activeFields) throws GameException {
         final Node<FieldIntTuple> rootpos = new Node<>(new FieldIntTuple(0, field));
-        OthelloField workfield = null;
+        OthelloField workfield = field;
         if (activeFields.isEmpty()) {
             rootpos.addChild(new Node<>(new FieldIntTuple(0, field)));
         }
 
         for (int i = 0; i < activeFields.size(); i++) {
-            this.workboard = field.getBoard().deepCopy();
-            workfield = this.setup(this.workboard, usingBlackTokens).get(i);
+            final OthelloBoard workboard = field.getBoard().deepCopy();
+            workfield = this.setup(workboard, usingBlackTokens).get(i);
 
             workfield.placeToken(usingBlackTokens);
             rootpos.addChild(new Node<>(new FieldIntTuple(0, workfield)));
@@ -533,23 +505,23 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
     private FieldIntTuple minmax(final OthelloState state, final boolean usingBlackTokens,
             final List<OthelloField> activeFields, final Integer depth) throws GameException {
 
-        return this.reccruschTree(
-                this.evaluateLowestLayer(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth)),
-                usingBlackTokens,
-                depth + 1,
-                -100000,
-                100000);
-//        if (depth % 2 == 0) {
-//            return this.crushTree(
-//                    this.evaluateLowestLayer(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth)),
-//                    usingBlackTokens,
-//                    depth);
-//        } else {
-//            return this.crushTree(
-//                    this.evaluateLowestLayer(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth)),
-//                    !usingBlackTokens,
-//                    depth);
-//        }
+//        return this.reccruschTree(
+//                this.evaluateLowestLayer(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth)),
+//                usingBlackTokens,
+//                depth + 1,
+//                -100000,
+//                100000);
+        if (depth % 2 == 0) {
+            return this.crushTree(
+                    this.evaluateLowestLayer(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth)),
+                    usingBlackTokens,
+                    depth);
+        } else {
+            return this.crushTree(
+                    this.evaluateLowestLayer(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth)),
+                    !usingBlackTokens,
+                    depth);
+        }
     }
 
     private boolean isFieldStable(final OthelloField field) {

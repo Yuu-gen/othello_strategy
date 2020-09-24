@@ -18,13 +18,15 @@ module de.fhdw.gaming.othello.strategy.examples {
     requires de.fhdw.gaming.core;
     requires de.fhdw.gaming.othello.core;
 
-    provides de.fhdw.gaming.othello.core.domain.factory.OthelloStrategyFactory
-            with de.fhdw.gaming.othello.strategy.examples.first.OthelloFirstMoveFoundStrategyFactory,
+    provides de.fhdw.gaming.othello.core.domain.factory.OthelloStrategyFactory with
+//            de.fhdw.gaming.othello.strategy.examples.first.OthelloFirstMoveFoundStrategyFactory,
             de.fhdw.gaming.othello.strategy.examples.random.OthelloRandomMoveStrategyFactory,
-            de.fhdw.gaming.othello.strategy.examples.maxFlips.OthelloMaxFlipsMoveStrategyFactory,
-            de.fhdw.gaming.othello.strategy.examples.minOppMob.OthelloMinOppMobStrategyFactory,
-            de.fhdw.gaming.othello.strategy.examples.minMaxD3.OthelloMinMaxD3StrategyFactory,
-            de.fhdw.gaming.othello.strategy.examples.MinMaxANG.OthelloMinMaxANGFactory,
-            de.fhdw.gaming.othello.strategy.examples.MinMaxCombi.OthelloMinMaxCombiFactory,
-            de.fhdw.gaming.othello.strategy.examples.MinMaxCombi2.OthelloMinMaxCombi2Factory;
+//            de.fhdw.gaming.othello.strategy.examples.maxFlips.OthelloMaxFlipsMoveStrategyFactory,
+//            de.fhdw.gaming.othello.strategy.examples.minOppMob.OthelloMinOppMobStrategyFactory,
+//            de.fhdw.gaming.othello.strategy.examples.minMaxD3.OthelloMinMaxD3StrategyFactory,
+//            de.fhdw.gaming.othello.strategy.examples.MinMaxANG.OthelloMinMaxANGFactory,
+            de.fhdw.gaming.othello.strategy.examples.MinMaxCombi.OthelloMinMaxCombiFactory
+//            ,
+//            de.fhdw.gaming.othello.strategy.examples.MinMaxCombi2.OthelloMinMaxCombi2Factory,
+    ;
 }
