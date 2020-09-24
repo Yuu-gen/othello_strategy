@@ -505,23 +505,23 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
     private FieldIntTuple minmax(final OthelloState state, final boolean usingBlackTokens,
             final List<OthelloField> activeFields, final Integer depth) throws GameException {
 
-//        return this.reccruschTree(
-//                this.evaluateLowestLayer(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth)),
-//                usingBlackTokens,
-//                depth + 1,
-//                -100000,
-//                100000);
-        if (depth % 2 == 0) {
-            return this.crushTree(
-                    this.evaluateLowestLayer(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth)),
-                    usingBlackTokens,
-                    depth);
-        } else {
-            return this.crushTree(
-                    this.evaluateLowestLayer(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth)),
-                    !usingBlackTokens,
-                    depth);
-        }
+        return this.reccruschTree(
+                this.evaluateLowestLayer(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth)),
+                usingBlackTokens,
+                depth + 1,
+                -100000,
+                100000);
+//        if (depth % 2 == 0) {
+//            return this.crushTree(
+//                    this.evaluateLowestLayer(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth)),
+//                    usingBlackTokens,
+//                    depth);
+//        } else {
+//            return this.crushTree(
+//                    this.evaluateLowestLayer(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth)),
+//                    !usingBlackTokens,
+//                    depth);
+//        }
     }
 
     private boolean isFieldStable(final OthelloField field) {
