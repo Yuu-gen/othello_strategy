@@ -46,20 +46,27 @@ import de.fhdw.gaming.othello.core.moves.factory.OthelloMoveFactory;
 public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
 
     /**
-    *
-    */
+     * How many layers the search tree will have.
+     */
     private Integer depthOfTree = 3;
 
     /**
-     * place to put the state before modifying it for computations.
+     * provides the strategy with information on how many moves have been played yet. (decreases by 1 with every call of
+     * computeNextMove)
      */
-
     private Integer temperature = 32;
+    /**
+     * Integer denoting how valuable a token on a stable Field (as defined by isFieldStable) is.
+     *
+     */
     private Integer stableWorth = 3;
+    /**
+     * A coefficient used to emphasize certain aspects of the evaluation. is changed according to temperature
+     */
     private int fieldCoefficient = 1;
-
-    private int ownCorners;
-
+    /**
+     * maps a value to every field of a 8x8 OthelloBoard. is used for board evaluation
+     */
     private static HashMap<OthelloPosition, Integer> boardWeights = initializeBoardWeigths();
 
     /**
@@ -77,6 +84,9 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
     }
 
     @Override
+    /**
+     * resets the fields of the Strategy. Called before every game in a contest.
+     */
     public void reset() {
         this.depthOfTree = 3;
         this.temperature = 32;
@@ -86,7 +96,7 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
     }
 
     /**
-     * Initialisiert die HashMap für die Gewichtungen der einzelnen Felder.
+     * Initializes the HashMap used for evaluating the OthelloBoard.
      *
      * @return HashMap im Initialzustand
      */
@@ -166,15 +176,10 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
         };
     }
 
-    // private final Integer badFieldPenalty = 0;
-
-    // define a method to actually find winning positions
-    // penalize putting tokens on the fields around the corners in the fist moves
-
     @Override
     public Optional<OthelloMove> computeNextMove(final int gameId, final OthelloPlayer player, final OthelloState state)
             throws GameException {
-        this.ownCorners = 0;
+        int ownCorners = 0;
         this.stableWorth = 3;
         if (this.temperature < 10) {
             this.depthOfTree = 5;
@@ -197,37 +202,9 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
             ownFields = state.getBoard().getFieldsBeing(OthelloFieldState.WHITE).keySet();
 
         }
-        // Kann ausgelagert werden in eine Funktion checkOwnedCorners
-        for (final OthelloPosition ownPosition : ownFields) {
 
-            if (ownPosition.equals(OthelloPosition.of(0, 0))) {
-                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(0, 1), 0);
-                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(1, 0), 0);
-                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(1, 1), 0);
-                this.ownCorners += 1;
-            }
-            if (ownPosition.equals(OthelloPosition.of(0, 7))) {
-                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(0, 6), 0);
-                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(1, 7), 0);
-                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(1, 6), 0);
-                this.ownCorners += 1;
-
-            }
-            if (ownPosition.equals(OthelloPosition.of(7, 0))) {
-                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(6, 0), 0);
-                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(7, 1), 0);
-                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(1, 6), 0);
-                this.ownCorners += 1;
-
-            }
-            if (ownPosition.equals(OthelloPosition.of(7, 7))) {
-                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(7, 6), 0);
-                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(6, 7), 0);
-                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(6, 6), 0);
-                this.ownCorners += 1;
-            }
-        }
-        this.stableWorth += this.ownCorners * 6;
+        ownCorners = this.checkOwnCorners(ownFields);
+        this.stableWorth += ownCorners * 6;
 
         // The Othello game forces a player to skip a move if no valid move is possible. So you should check for this
         // situation first.
@@ -235,34 +212,9 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
             return Optional.of(this.moveFactory.createSkipMove(usingBlackTokens));
         }
 
-        // Now you should try to compute which of these active fields gives your player the most chances to win.
-        // You could e.g. select the first possible field to place a token on, or you could choose a field where
-        // placing a token changes the largest number of foreign tokens to your colour. Not recommended (at least not
-        // if you aim to win), but nevertheless possible is returning Optional.empty(), i.e. no move, which forces
-        // your player to resign the game.
-        //
-        // The most interesting operations you can find in the OthelloField interface. Look especially at
-        // {@link OthelloField#hasNeighbour(OthelloDirection)}, {@link OthelloField#getNeighbour(OthelloDirection)},
-        // and {@link OthelloField#getLineOfTokens(OthelloDirection, OthelloFieldState)}.
-        // In the following Stategy we place Tokens on all Fields,as if we were the only player.
-        // then we discover how stupid it is to return the first Element of an Empty List and remember that we have to
-        // actually reset the
-        // Boardstate after we used place token and cry
+        final FieldIntTuple besttuple = this.minmax(state, usingBlackTokens, activeFields, this.depthOfTree);
 
-//        final long startTime = System.nanoTime();
-        FieldIntTuple besttuple;
-
-        besttuple = this.minmax(state, usingBlackTokens, activeFields, this.depthOfTree);
-
-//        final long endTime = System.nanoTime();
-//        final long duration = (endTime - startTime);
-//        System.out.println(duration / 1000000000);// division to get Seconds
-
-//                this
-//                .crushTree(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, 4), usingBlackTokens, 4);
-
-//        System.out.println(besttuple.getValue());
-//        System.out.println(this.Temperature);
+//        System.out.println(besttuple.getValue()); //prints how good the Strategy thinks the current board is.
 
         final OthelloPosition bestposition = besttuple.getField().getPosition();
 //        final OthelloPosition bestposition = this.calculate(activeFields, usingBlackTokens, state);
@@ -303,9 +255,8 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
      * Builds a one layer deep tree with the board you give it as root and all possible boards one move into the future
      * as children.
      *
-     * Dosen't understand skipmoves correctly , the current if else is just a temporary fix
      *
-     * @param board
+     * @param field
      * @param usingBlackTokens
      * @param activeFields
      * @return
@@ -331,6 +282,13 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
         return rootpos;
     }
 
+    /**
+     * Evaluates the lowest layer of a given tree using evaluateBoard, and assigns the values to the nodes in the lowest
+     * layer.
+     *
+     * @param rootnode
+     * @return
+     */
     private Node<FieldIntTuple> evaluateLowestLayer(final Node<FieldIntTuple> rootnode) {
         rootnode.getLowestLayer().parallelStream()
                 .forEach(node -> node.getData().setValue(this.evaluateBoard(node.getData().getField().getBoard())));
@@ -355,16 +313,7 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
         boolean currentUsingBlackTokens = usingBlackTokens;
         for (int i = 0; i < depth; i++) {
             currentUsingBlackTokens = !currentUsingBlackTokens;
-            for (final Node<FieldIntTuple> node : outTree.getLowestLayer()) { // sadly i don't think i can replace this
-                                                                              // for loop
-                                                                              // with a parallel stream because it uses
-                                                                              // an outside
-                                                                              // variable that is not final. but perhaps
-                                                                              // this could
-                                                                              // be circumvented by having current using
-                                                                              // black tokens
-                                                                              // be a final list of alternating true and
-                                                                              // false booleans (as many as depth is)
+            for (final Node<FieldIntTuple> node : outTree.getLowestLayer()) {
                 node.addChildren(
                         this.growTree(
                                 node.getData().getField(),
@@ -386,55 +335,44 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
      */
     private Integer evaluateBoard(final OthelloBoard board) {
 
-        final Set<OthelloPosition> BlackFields = board.getFieldsBeing(OthelloFieldState.BLACK).keySet();
-        final Set<OthelloPosition> WhiteFields = board.getFieldsBeing(OthelloFieldState.WHITE).keySet();
+        final Set<OthelloPosition> blackFields = board.getFieldsBeing(OthelloFieldState.BLACK).keySet();
+        final Set<OthelloPosition> whiteFields = board.getFieldsBeing(OthelloFieldState.WHITE).keySet();
 
-        final int BlackActiveFieldsNum = this.setup(board, true).size();
-        final int WhiteActiveFieldsNum = this.setup(board, false).size();
-        int BlackFieldsNum = BlackFields.size();
-        int WhiteFieldsNum = WhiteFields.size();
+        final int blackActiveFieldsNum = this.setup(board, true).size();
+        final int whiteActiveFieldsNum = this.setup(board, false).size();
+        int blackFieldsNum = blackFields.size();
+        int whiteFieldsNum = whiteFields.size();
 
-//        for (final OthelloPosition BlackPosition : BlackFields) {
-//            if (this.isFieldStable(board.getFieldAt(BlackPosition))) {
-//                BlackFieldsNum += this.StableWorth;
-//            }
-//        }
-//        for (final OthelloPosition WhitePosition : WhiteFields) {
-//            if (this.isFieldStable(board.getFieldAt(WhitePosition))) {
-//                WhiteFieldsNum += this.StableWorth;
-//            }
-//        }
-        if (this.isWinning(true, BlackActiveFieldsNum, WhiteActiveFieldsNum, BlackFieldsNum, WhiteFieldsNum)) {
+        if (this.isWinning(true, blackActiveFieldsNum, whiteActiveFieldsNum, blackFieldsNum, whiteFieldsNum)) {
             return 1000000;
         }
-        if (this.isWinning(false, BlackActiveFieldsNum, WhiteActiveFieldsNum, BlackFieldsNum, WhiteFieldsNum)) {
+        if (this.isWinning(false, blackActiveFieldsNum, whiteActiveFieldsNum, blackFieldsNum, whiteFieldsNum)) {
             return -1000000;
         } else {
-            for (final OthelloPosition BlackPosition : BlackFields) {
-                if (this.isFieldStable(board.getFieldAt(BlackPosition))) {
-                    BlackFieldsNum += this.stableWorth;
+            for (final OthelloPosition blackPosition : blackFields) {
+                if (this.isFieldStable(board.getFieldAt(blackPosition))) {
+                    blackFieldsNum += this.stableWorth;
                 }
-                BlackFieldsNum += OthelloMinMaxCombiStrategy.boardWeights.get(BlackPosition);
-                BlackFieldsNum -= this.getFieldPenalty(board.getFieldAt(BlackPosition));
+                blackFieldsNum += OthelloMinMaxCombiStrategy.boardWeights.get(blackPosition);
+                blackFieldsNum -= this.getFieldPenalty(board.getFieldAt(blackPosition));
 
             }
-            for (final OthelloPosition WhitePosition : WhiteFields) {
-                if (this.isFieldStable(board.getFieldAt(WhitePosition))) {
-                    WhiteFieldsNum += this.stableWorth;
+            for (final OthelloPosition whitePosition : whiteFields) {
+                if (this.isFieldStable(board.getFieldAt(whitePosition))) {
+                    whiteFieldsNum += this.stableWorth;
                 }
-                WhiteFieldsNum += OthelloMinMaxCombiStrategy.boardWeights.get(WhitePosition);
-                WhiteFieldsNum -= this.getFieldPenalty(board.getFieldAt(WhitePosition));
+                whiteFieldsNum += OthelloMinMaxCombiStrategy.boardWeights.get(whitePosition);
+                whiteFieldsNum -= this.getFieldPenalty(board.getFieldAt(whitePosition));
 
             }
-            return ((BlackFieldsNum * this.fieldCoefficient + BlackActiveFieldsNum)
-                    - (WhiteFieldsNum * this.fieldCoefficient + WhiteActiveFieldsNum));
+            return ((blackFieldsNum * this.fieldCoefficient + blackActiveFieldsNum)
+                    - (whiteFieldsNum * this.fieldCoefficient + whiteActiveFieldsNum));
         }
 
     }
 
     /**
-     * Should remove the lowest layer and propagate its values up the tree acording to minmax. probably sometimes throws
-     * "index 0 out of range for length 0" because compare sometimes gets passed an empty List as group
+     * Removes the lowest layer and propagate its values up the tree acording to minmax. Used by crushTree.
      *
      * @param rootnode
      * @param usingBlackTokens
@@ -481,7 +419,8 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
     }
 
     /**
-     * Evaluates which move should be made according to minmax.
+     * Evaluates which move should be made according to minmax for a given GameTree. Iterative approach with worse
+     * performance ,only exists for debugging purposes.
      *
      * @param rootnode
      * @param usingBlackTokens
@@ -502,15 +441,29 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
         return this.compare(currentrootnode.getChildren(), currentUsingBlackTokens);
     }
 
+    /**
+     * Builds a Tree representing the current board and all boards reachable by playing legal moves (up to the specified
+     * depth) and then extracts the best move according to minmax search.
+     *
+     * @param state
+     * @param usingBlackTokens
+     * @param activeFields
+     * @param depth
+     * @return
+     * @throws GameException
+     */
     private FieldIntTuple minmax(final OthelloState state, final boolean usingBlackTokens,
             final List<OthelloField> activeFields, final Integer depth) throws GameException {
 
+        // enterypoint for using the recursive approach with alpha beta pruning
         return this.reccruschTree(
                 this.evaluateLowestLayer(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth)),
                 usingBlackTokens,
                 depth + 1,
                 -100000,
                 100000);
+
+        // enterypoint for using the iterative approach without alpha beta pruning.
 //        if (depth % 2 == 0) {
 //            return this.crushTree(
 //                    this.evaluateLowestLayer(this.buildTree(state.getBoard(), usingBlackTokens, activeFields, depth)),
@@ -524,6 +477,13 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
 //        }
     }
 
+    /**
+     * Defines if a field is stable, by checking if for every direction in which the given field has has a neighbor
+     * there is a uninterrupted line of own tokens to the edge of the board on the other side.
+     *
+     * @param field
+     * @return
+     */
     private boolean isFieldStable(final OthelloField field) {
         final List<OthelloDirection> opposingSides = new ArrayList<>();
         OthelloField workfield = field;
@@ -555,6 +515,8 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
                     case NORTHWEST:
                         opposingSides.add(OthelloDirection.SOUTHEAST);
                         break;
+                    default:
+                        break;
                     }
                 }
             }
@@ -573,6 +535,17 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
         return true;
     }
 
+    /**
+     * Recursively calculates the best move of a GameTree. (implements alpha beta pruning in contrast to the iterative
+     * implementation)
+     *
+     * @param rootnode
+     * @param usingBlackTokens
+     * @param depth
+     * @param alpha
+     * @param beta
+     * @return
+     */
     private FieldIntTuple reccruschTree(final Node<FieldIntTuple> rootnode, final boolean usingBlackTokens,
             final Integer depth, final Integer alpha, final Integer beta) {
         Integer localAlpha = alpha;
@@ -587,7 +560,7 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
                 final FieldIntTuple currEval = new FieldIntTuple(0, child.getData().getField());
                 currEval.setValue(this.reccruschTree(child, false, depth - 1, localAlpha, localBeta).getValue());
                 if (bestNode.getValue() >= currEval.getValue()) {
-                    bestNode = bestNode;
+                    // do nothing
                 } else {
                     bestNode = currEval;
                 }
@@ -605,7 +578,7 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
                 currEval.setValue(this.reccruschTree(child, true, depth - 1, localAlpha, localBeta).getValue());
 
                 if (bestNode.getValue() <= currEval.getValue()) {
-                    bestNode = bestNode;
+                    // do nothing
                 } else {
                     bestNode = currEval;
                 }
@@ -619,19 +592,36 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
         }
     }
 
-    private boolean isWinning(final boolean usingBlackTokens, final int BlackActiveFieldsNum,
-            final Integer WhiteActiveFieldsNum, final int BlackFieldsNum, final int WhiteFieldsNum) {
-        if (BlackActiveFieldsNum == 0 && WhiteActiveFieldsNum == 0) {
+    /**
+     * True if the given parameters describe a winnig board for the given player. (else this method is false)
+     *
+     * @param usingBlackTokens
+     * @param blackActiveFieldsNum
+     * @param whiteActiveFieldsNum
+     * @param blackFieldsNum
+     * @param whiteFieldsNum
+     * @return
+     */
+    private boolean isWinning(final boolean usingBlackTokens, final int blackActiveFieldsNum,
+            final Integer whiteActiveFieldsNum, final int blackFieldsNum, final int whiteFieldsNum) {
+        if (blackActiveFieldsNum == 0 && whiteActiveFieldsNum == 0) {
             if (usingBlackTokens) {
-                return BlackFieldsNum > WhiteFieldsNum;
+                return blackFieldsNum > whiteFieldsNum;
             } else {
-                return WhiteFieldsNum > BlackFieldsNum;
+                return whiteFieldsNum > blackFieldsNum;
             }
         } else {
             return false;
         }
     }
 
+    /**
+     * Calculates the evaluation penalty for a field by counting adjacent empty fields. (this penalty represents the
+     * danger of the token being fliped.
+     *
+     * @param field
+     * @return
+     */
     private int getFieldPenalty(final OthelloField field) {
         int penalty = 0;
         for (final OthelloDirection direction : OthelloDirection.values()) {
@@ -643,6 +633,46 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
             }
         }
         return penalty;
+    }
+
+    /**
+     * Updates the map according to the corners occupied by the Strategy and returns the number of corners owned.
+     *
+     * @param ownFields
+     * @return
+     */
+    private int checkOwnCorners(final Set<OthelloPosition> ownFields) {
+        int ownCorners = 0;
+        for (final OthelloPosition ownPosition : ownFields) {
+
+            if (ownPosition.equals(OthelloPosition.of(0, 0))) {
+                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(0, 1), 0);
+                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(1, 0), 0);
+                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(1, 1), 0);
+                ownCorners += 1;
+            }
+            if (ownPosition.equals(OthelloPosition.of(0, 7))) {
+                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(0, 6), 0);
+                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(1, 7), 0);
+                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(1, 6), 0);
+                ownCorners += 1;
+
+            }
+            if (ownPosition.equals(OthelloPosition.of(7, 0))) {
+                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(6, 0), 0);
+                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(7, 1), 0);
+                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(1, 6), 0);
+                ownCorners += 1;
+
+            }
+            if (ownPosition.equals(OthelloPosition.of(7, 7))) {
+                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(7, 6), 0);
+                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(6, 7), 0);
+                OthelloMinMaxCombiStrategy.boardWeights.replace(OthelloPosition.of(6, 6), 0);
+                ownCorners += 1;
+            }
+        }
+        return ownCorners;
     }
 
 }
