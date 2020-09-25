@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with othello-strategy-template.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.fhdw.gaming.othello.strategy.examples.MinMaxCombi;
+package de.fhdw.gaming.othello.strategy.ITN_YV;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -229,7 +229,7 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
     }
 
     /**
-     * Generates a list of active fields, wich is neccassary for almost all Strategies.
+     * Generates a list of active fields, which is neccassary for almost all Strategies.
      *
      * @param board            the Board to find the active fields of
      * @param usingBlackTokens If black is the player to move
@@ -242,7 +242,7 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
         // your player uses black or white tokens...
         // siehe Formalmarameter
 
-        // ...and then you are able to filter all active fields for this token colour. Only on these fields is it
+        // ...and then you are able to filter all active fields for this token color. Only on these fields is it
         // possible to place a suitable token according to the rules of the game.
         // (Of course you can use a traditional for-each loop instead of streams for filtering.)
         final List<OthelloField> activeFields = new ArrayList<>();
@@ -372,7 +372,7 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
     }
 
     /**
-     * Removes the lowest layer and propagate its values up the tree acording to minmax. Used by crushTree.
+     * Removes the lowest layer and propagates its values up the tree according to minmax. Used by crushTree.
      *
      * @param rootnode
      * @param usingBlackTokens
@@ -420,7 +420,7 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
 
     /**
      * Evaluates which move should be made according to minmax for a given GameTree. Iterative approach with worse
-     * performance ,only exists for debugging purposes.
+     * performance, only exists for debugging purposes.
      *
      * @param rootnode
      * @param usingBlackTokens
@@ -593,7 +593,7 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
     }
 
     /**
-     * True if the given parameters describe a winnig board for the given player. (else this method is false)
+     * True if the given parameters describe a wining board for the given player. (else this method is false)
      *
      * @param usingBlackTokens
      * @param blackActiveFieldsNum

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with othello-strategy-template.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.fhdw.gaming.othello.strategy.ITN_YV;
+package de.fhdw.gaming.othello.strategy.examples.MinMax;
 
 import java.util.ArrayList;
 import java.util.List;

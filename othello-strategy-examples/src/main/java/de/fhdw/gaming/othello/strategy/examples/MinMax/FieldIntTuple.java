@@ -1,4 +1,4 @@
-package de.fhdw.gaming.othello.strategy.examples.MinMaxCombi;
+package de.fhdw.gaming.othello.strategy.examples.MinMax;
 
 import de.fhdw.gaming.othello.core.domain.OthelloField;
 

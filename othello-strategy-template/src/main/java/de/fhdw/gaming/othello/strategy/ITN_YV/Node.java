@@ -14,7 +14,7 @@ public class Node<DATATYPE> {
     /**
      * The place to hold the nodes data.
      */
-    private DATATYPE data = null;
+    private DATATYPE data;
 
     /**
      * The place to store a nodes children.
@@ -24,7 +24,7 @@ public class Node<DATATYPE> {
     /**
      * The place to store the parent of a Node.
      */
-    private Node<DATATYPE> parent = null;
+    private Node<DATATYPE> parent;
 
     /**
      * The Constructor for Node.

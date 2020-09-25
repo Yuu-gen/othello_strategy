@@ -1,4 +1,4 @@
-package de.fhdw.gaming.othello.strategy.ITN_YV;
+package de.fhdw.gaming.othello.strategy.examples.MinMax;
 
 import java.util.List;
 

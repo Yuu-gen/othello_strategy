@@ -1,4 +1,4 @@
-package de.fhdw.gaming.othello.strategy.examples.MinMaxCombi;
+package de.fhdw.gaming.othello.strategy.examples.MinMax;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ public class Node<DATATYPE> {
     /**
      * The place to hold the nodes data.
      */
-    private DATATYPE data;
+    private DATATYPE data = null;
 
     /**
      * The place to store a nodes children.
@@ -24,7 +24,7 @@ public class Node<DATATYPE> {
     /**
      * The place to store the parent of a Node.
      */
-    private Node<DATATYPE> parent;
+    private Node<DATATYPE> parent = null;
 
     /**
      * The Constructor for Node.

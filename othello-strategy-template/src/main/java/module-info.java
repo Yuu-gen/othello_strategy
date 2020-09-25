@@ -20,5 +20,5 @@ module de.fhdw.gaming.othello.strategy.template {
     requires de.fhdw.gaming.othello.core;
 
     provides de.fhdw.gaming.othello.core.domain.factory.OthelloStrategyFactory
-            with de.fhdw.gaming.othello.strategy.ITN_YV.OthelloMinMaxFactory;
+            with de.fhdw.gaming.othello.strategy.ITN_YV.OthelloMinMaxCombiFactory;
 }
