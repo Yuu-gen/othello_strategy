@@ -15,7 +15,7 @@ public class FieldIntTuple {
     /**
      * Constructor for FieldIntTuple.
      *
-     * @param Value
+     * @param value
      * @param field
      */
     public FieldIntTuple(final Integer value, final OthelloField field) {

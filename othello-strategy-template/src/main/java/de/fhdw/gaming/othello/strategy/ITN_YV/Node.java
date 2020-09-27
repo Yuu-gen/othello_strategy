@@ -93,7 +93,6 @@ public class Node<DATATYPE> {
      * @return
      */
     public List<Node<DATATYPE>> getLowestLayer() {
-        final List<Node<DATATYPE>> outNodes = new ArrayList<>();
         List<Node<DATATYPE>> currentLayer = new ArrayList<>();
         List<Node<DATATYPE>> nextLayer = new ArrayList<>();
         currentLayer = this.getChildren();
@@ -111,8 +110,6 @@ public class Node<DATATYPE> {
 
     /**
      * Returns the Lowest Layer of the Tree in Lists separated by parents within a List.
-     *
-     * @Requires balanced Tree!!!
      *
      * @return
      */
@@ -142,6 +139,9 @@ public class Node<DATATYPE> {
         return outNodes;
     }
 
+    /**
+     * Deletes the Node it is called on.
+     */
     public void deleteNode() {
         if (this.parent != null) {
             final int index = this.parent.getChildren().indexOf(this);
@@ -154,6 +154,11 @@ public class Node<DATATYPE> {
         this.getChildren().clear();
     }
 
+    /**
+     * Deletes a root node.
+     *
+     * @return
+     */
     public Node<DATATYPE> deleteRootNode() {
         if (this.parent != null) {
             throw new IllegalStateException("deleteRootNode not called on root");
