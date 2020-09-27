@@ -186,7 +186,7 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
             this.stableWorth = 0;
 
         }
-        if (this.temperature < 5) {
+        if (this.temperature < 7) {
             this.fieldCoefficient = 2;
 
         }
@@ -212,15 +212,16 @@ public final class OthelloMinMaxCombiStrategy implements OthelloStrategy {
             return Optional.of(this.moveFactory.createSkipMove(usingBlackTokens));
         }
 
-        final FieldIntTuple besttuple = this.minmax(state, usingBlackTokens, activeFields, this.depthOfTree);
+//        final FieldIntTuple besttuple = this.minmax(state, usingBlackTokens, activeFields, this.depthOfTree);
 
 //        System.out.println(besttuple.getValue()); //prints how good the Strategy thinks the current board is.
 
-        final OthelloPosition bestposition = besttuple.getField().getPosition();
+//        final OthelloPosition bestposition = besttuple.getField().getPosition();
 //        final OthelloPosition bestposition = this.calculate(activeFields, usingBlackTokens, state);
-        final Optional<OthelloMove> output = Optional
-                .of(this.moveFactory.createPlaceTokenMove(usingBlackTokens, bestposition));
-        return output;
+        return Optional.of(
+                this.moveFactory.createPlaceTokenMove(
+                        usingBlackTokens,
+                        this.minmax(state, usingBlackTokens, activeFields, this.depthOfTree).getField().getPosition()));
     }
 
     @Override
